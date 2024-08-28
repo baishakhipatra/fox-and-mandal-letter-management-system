@@ -46,7 +46,7 @@ class UserController extends Controller
 
         $user->syncRoles($request->roles);
 
-        return redirect('/users')->with('status','User created successfully with roles');
+        return redirect('/users')->with('success','User created successfully with roles');
     }
 
     public function edit(User $user)
@@ -82,7 +82,7 @@ class UserController extends Controller
         $user->update($data);
         $user->syncRoles($request->roles);
 
-        return redirect('/users')->with('status','User Updated Successfully with roles');
+        return redirect('/users')->with('success','User Updated Successfully with roles');
     }
 
     public function destroy($userId)
@@ -90,6 +90,6 @@ class UserController extends Controller
         $user = User::findOrFail($userId);
         $user->delete();
 
-        return redirect('/users')->with('status','User Delete Successfully');
+        return redirect('/users')->with('success','User Delete Successfully');
     }
 }

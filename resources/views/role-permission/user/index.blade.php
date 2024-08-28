@@ -32,6 +32,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($users as $user)
+                                 
                                 <tr>
                                     <td>{{ $user->id }}</td>
                                     <td>{{ $user->name }}</td>
@@ -47,10 +48,16 @@
                                         @can('update user')
                                         <a href="{{ url('users/'.$user->id.'/edit') }}" class="btn btn-success">Edit</a>
                                         @endcan
-
+                                        @if (!empty($user->getRoleNames()))
+                                            @foreach ($user->getRoleNames() as $rolename)
+                                              @if($rolename!='super-admin')
+                                            
                                         @can('delete user')
                                         <a href="{{ url('users/'.$user->id.'/delete') }}" class="btn btn-danger mx-2">Delete</a>
                                         @endcan
+                                        @endif
+                                        @endforeach
+                                        @endif
                                     </td>
                                 </tr>
                                 @endforeach

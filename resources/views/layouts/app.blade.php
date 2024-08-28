@@ -64,11 +64,17 @@
                 @endcan
                 
                 @can('view book')
-                <li class="@if(request()->is('offices*')) { {{'active'}} }  @endif">
+                <li class="@if(request()->is('bookcategories*')) { {{'active'}} }  @endif">
                     <a href="#"><i class="fi fi-br-cube"></i> <span>Lms Management</span></a>
                     <ul>
-                        @can('view office')
-                        <li class=""><a href=""><i class="fi fi-br-database"></i> <span>Lms Management</span></a></li>
+                        @can('book category list')
+                        <li class="{{ ( request()->is('bookcategories*') ) ? 'active' : '' }}"><a href="{{route('bookcategories.index')}}"><i class="fi fi-br-database"></i> <span>Book Category Management</span></a></li>
+                        @endcan
+                        @can('bookshelve list')
+                        <li class="{{ ( request()->is('bookshelves*') ) ? 'active' : '' }}"><a href="{{route('bookshelves.index')}}"><i class="fi fi-br-database"></i> <span>Bookshelves Management</span></a></li>
+                        @endcan
+                        @can('book list')
+                        <li class="{{ ( request()->is('books*') ) ? 'active' : '' }}"><a href="{{route('books.index')}}"><i class="fi fi-br-database"></i> <span>Book Management</span></a></li>
                         @endcan
                     </ul>
                 </li>
