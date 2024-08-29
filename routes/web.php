@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Facility\OfficeController;
+use App\Http\Controllers\Lms\BookCategoryController;
+use App\Http\Controllers\Lms\BookshelveController;
+use App\Http\Controllers\Lms\BookController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -56,5 +59,16 @@ Route::group(['middleware' => ['role:super-admin|admin']], function() {
     
     Route::resource('offices', OfficeController::class);
     Route::get('offices/{userId}/delete', [OfficeController::class, 'destroy']);
+    
+    
+    //lms
+    Route::resource('bookcategories', BookCategoryController::class);
+    Route::get('bookcategories/{userId}/delete', [BookCategoryController::class, 'destroy']);
+    
+    Route::resource('bookshelves', BookshelveController::class);
+    Route::get('bookshelves/{userId}/delete', [BookshelveController::class, 'destroy']);
+    
+    Route::resource('books', BookController::class);
+    Route::get('books/{userId}/delete', [BookController::class, 'destroy']);
 
 });

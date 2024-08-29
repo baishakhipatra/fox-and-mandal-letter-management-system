@@ -17,12 +17,12 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h4>Edit Office
-                            <a href="{{ url('offices') }}" class="btn btn-danger float-end">Back</a>
+                        <h4>Edit Book Category
+                            <a href="{{ url('bookcategories') }}" class="btn btn-danger float-end">Back</a>
                         </h4>
                     </div>
                     <div class="card-body">
-                        <form action="{{ url('offices/'.$data->id) }}" method="POST">
+                        <form action="{{ url('bookcategories/'.$data->id) }}" method="POST">
                             @csrf
                             @method('PUT')
 
@@ -32,8 +32,8 @@
                                 @error('name') <span class="text-danger">{{ $message }}</span> @enderror
                             </div>
                             <div class="mb-3">
-                                <label for="">Address</label>
-                                <input type="text" name="address"  value="{{ $data->address }}" class="form-control" />
+                                <label for="">Details</label>
+                                <textarea type="text" name="details"  value="" class="form-control" />{{ $data->details }}</textarea>
                             </div>
                             
                             <div class="mb-3">

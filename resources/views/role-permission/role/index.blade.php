@@ -46,12 +46,13 @@
                                             Edit
                                         </a>
                                         @endcan
-
+                                        @if($role->name!='super-admin')
                                         @can('delete role')
                                         <a href="{{ url('roles/'.$role->id.'/delete') }}" class="btn btn-danger mx-2">
                                             Delete
                                         </a>
                                         @endcan
+                                        @endif
                                     </td>
                                 </tr>
                                 @endforeach
