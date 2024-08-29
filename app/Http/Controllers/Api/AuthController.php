@@ -34,12 +34,16 @@ class AuthController extends Controller
         // Update OTP and expiration
         $user->update([
             'otp' => $otp,
-            // 'otp_expires_at' => $expiresAt,
         ]);
 
         // Here you should send OTP to the user's phone number
         // For this example, we'll just return the OTP in the response for testing purposes
-        return response()->json(['message' => 'OTP sent successfully', 'otp' => $otp], 200);
+        return response()->json(['message' => 'OTP sent successfully', 
+        'otp' => $otp,
+        'name'=> $user->name,
+        'email'=> $user->email,
+        'mobile'=> $user->mobile,
+    ], 200);
     }
 
     public function verifyOtp(Request $request)
