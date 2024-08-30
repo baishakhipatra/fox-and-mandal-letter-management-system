@@ -17,23 +17,35 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h4>Edit Book Category
-                            <a href="{{ url('bookcategories') }}" class="btn btn-danger float-end">Back</a>
+                        <h4>Edit Bookshelves
+                            <a href="{{ url('bookshelves') }}" class="btn btn-danger float-end">Back</a>
                         </h4>
                     </div>
                     <div class="card-body">
-                        <form action="{{ url('bookcategories/'.$data->id) }}" method="POST">
+                        <form action="{{ url('bookshelves/'.$data->id) }}" method="POST">
                             @csrf
                             @method('PUT')
 
                             <div class="mb-3">
-                                <label for="">Name</label>
-                                <input type="text" name="name" value="{{ $data->name }}" class="form-control" />
-                                @error('name') <span class="text-danger">{{ $message }}</span> @enderror
+                                <label for="">Office</label>
+                                <select class="form-select form-select-sm select2" aria-label="Default select example" name="office_id" id="office_id">
+                                    <option value=""  selected>Select Office</option>
+                                    @foreach ($office as $index => $item)
+                                                <option value="{{$item->id}}" {{ ($data->office_id == $item->id) ? 'selected' :  '' }}>{{ $item->name }}({{$item->address}})</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="mb-3">
-                                <label for="">Details</label>
-                                <textarea type="text" name="details"  value="" class="form-control" />{{ $data->details }}</textarea>
+                                <label for="">Office Area</label>
+                                <textarea type="text" name="area" class="form-control" />{{$data->area}}</textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="">Bookshelf Number</label>
+                                <input type="text" name="number" value="{{$data->number}}" class="form-control" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="">Manager</label>
+                                <input type="text" name="manager" value="{{$data->manager}}" class="form-control" />
                             </div>
                             
                             <div class="mb-3">

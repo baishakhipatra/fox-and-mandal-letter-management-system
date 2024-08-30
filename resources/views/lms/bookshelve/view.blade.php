@@ -17,8 +17,8 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h4>Books Detail
-                            <a href="{{ url('books') }}" class="btn btn-danger float-end">Back</a>
+                        <h4>Bookshelves Detail
+                            <a href="{{ url('bookshelves') }}" class="btn btn-danger float-end">Back</a>
                             <a type="button" id="basic" class="btn btn-danger float-end">Download Qrcode</a>
                         </h4>
                     </div>
@@ -32,46 +32,17 @@
                                     <td class="text-muted">Office Location: </td>
                                     <td>{{ $data->office->address ??''}}</td>
                                 </tr>
-                                
+                                <tr>
+                                    <td class="text-muted">Office Area : </td>
+                                    <td>{{ $data->area ??''}}</td>
+                                </tr>
                                 <tr>
                                     <td class="text-muted">Bookshelf Number :  </td>
-                                    <td>{{ $data->bookshelves->number }}</td>
+                                    <td>{{ $data->number }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Category : </td>
-                                    <td>{{$data->category->name}}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Uid : </td>
-                                    <td>{{ $data->uid ??''}}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Title : </td>
-                                    <td>{{ $data->title ??''}}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Author : </td>
-                                    <td>{{ $data->author ??''}}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Publisher : </td>
-                                    <td>{{ $data->publisher ??''}}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Edition : </td>
-                                    <td>{{ $data->edition ??''}}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Page : </td>
-                                    <td>{{ $data->page ??''}}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Quantity : </td>
-                                    <td>{{ $data->quantity ??''}}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Status : </td>
-                                    <td>{{($data->status == 1) ? 'Active' : 'Inactive'}</td>
+                                    <td class="text-muted">Manager : </td>
+                                    <td>{{$data->manager}}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-muted">Created By: </td>
@@ -94,8 +65,8 @@
                 <div class="card-body" >
                         <table class="" style="display:none" id="print-code">
                                 <tr>
-                                    <td class="text-muted">Book Name :  </td>
-                                    <td>{{ $data->title }}</td>
+                                    <td class="text-muted">Bookshelf Number :  </td>
+                                    <td>{{ $data->number }}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-muted">Qrcode: </td>
@@ -111,7 +82,10 @@
     <!-- printThis Plugin -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/printThis/1.15.0/printThis.min.js"></script>
 <script>
-
+//  $('#basic').on("click", function () {
+//       $('.print-code').printThis();
+//     });
+    
    $(document).ready(function() {
             $('#basic').on('click', function() {
                 $('#print-code').show();
@@ -119,7 +93,7 @@
                 importCSS: true,        // Import page CSS
                 importStyle: true,      // Import style tags
                 loadCSS: "",            // Load an additional CSS file
-                pageTitle: "Books Info", // Title for the printed document
+                pageTitle: "Bookshelf Info", // Title for the printed document
                 removeInline: false,    // Keep the inline styles
                 printDelay: 333,        // Delay before printing to allow images to load
                 afterPrint: function() {

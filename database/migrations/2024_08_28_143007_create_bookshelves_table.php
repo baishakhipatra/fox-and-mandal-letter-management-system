@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('bookshelves', function (Blueprint $table) {
             $table->id();
+            $table->integer('office_id');
+            $table->integer('user_id');
+            $table->string('number');
+            $table->string('area');
+            $table->string('manager');
+            $table->string('qrcode');
             $table->timestamps();
         });
     }
