@@ -40,3 +40,4 @@ Route::get('/books-shelve/search-by-qrcode', [BookShelveController::class, 'sear
 Route::post('/bookmark', [BookmarkController::class, 'store']);
 Route::get('/bookmark/list', [BookmarkController::class, 'index']);
 
+Route::get('/books/detai-by-book-shelves-qrcode', [BookController::class, 'showBooksByBookShelveQRCode']);

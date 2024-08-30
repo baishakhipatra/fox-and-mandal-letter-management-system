@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Book;
+use App\Models\Bookshelve;
 
 class BookController extends Controller
 {
@@ -56,6 +57,40 @@ class BookController extends Controller
                                     'message' => 'Details of book by Qr-Code',
                                     'data' =>$book
                                 ], 200);
+    }
+
+    public function showBooksByBookShelveQRCode(Request $request)
+    {
+        // Find the bookshelf by its QR code
+        $bookshelve = Bookshelve::where('qrcode', $request->qrcode)->first();
+
+        // Check if the bookshelf exists
+        if (!$bookshelve) {
+            return response()->json(['message' => 'Bookshelf not found'], 404);
+        }
+
+        // Retrieve the books related to the found bookshelf
+        $books = $bookshelve->books;
+
+        // Format and return the book details as a JSON response
+        return response()->json([
+            // 'bookshelve' => [
+            //     'id' => $bookshelve->id,
+            //     'qrcode' => $bookshelve->qrcode,
+            //     // 'location' => $bookshelve->location,
+            //     // 'description' => $bookshelve->description,
+            // ],
+            'books' => $books->map(function ($book) {
+                return [
+                    'data'=>$book
+                    // 'title' => $book->title,
+                    // 'author' => $book->author,
+                    // 'publisher' => $book->publisher,
+                    // 'edition' => $book->edition,
+                    // 'quantity' => $book->quantity,
+                ];
+            }),
+        ]);
     }
 
 }

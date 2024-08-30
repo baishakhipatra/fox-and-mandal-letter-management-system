@@ -18,4 +18,13 @@ class Book extends Model
     // {
     //     return $this->belongsToMany(User::class);
     // }
+    // public function bookshelve()
+    // {
+    //     return $this->belongsTo(Bookshelve::class);
+    // }
+
+    public function bookshelve()
+    {
+        return $this->belongsTo(Bookshelve::class, 'bookshelves_id');
+    }
 }
