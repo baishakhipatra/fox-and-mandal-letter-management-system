@@ -63,8 +63,8 @@
                 </li>
                 @endcan
                 
-                @can('view book')
-                <li class="@if(request()->is('bookcategories*')) { {{'active'}} }  @endif">
+                @can('book category list')
+                <li class="@if(request()->is('bookcategories*')||request()->is('bookshelves*')||request()->is('books*')) { {{'active'}} }  @endif">
                     <a href="#"><i class="fi fi-br-cube"></i> <span>Lms Management</span></a>
                     <ul>
                         @can('book category list')

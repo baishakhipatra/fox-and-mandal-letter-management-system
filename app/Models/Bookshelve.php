@@ -13,4 +13,14 @@ class Bookshelve extends Model
     {
         return $this->hasMany(Book::class, 'bookshelves_id');
     }
+    public function office()
+    {
+        return $this->belongsTo(Office::class);
+    }
+    
+    
+     public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

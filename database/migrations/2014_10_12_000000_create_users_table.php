@@ -14,10 +14,13 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('mobile')->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+            $table->integer('office_id');
+            $table->tinyInteger('status')->comment('1: active, 0: inactive')->default(1);
             $table->timestamps();
         });
     }

@@ -17,21 +17,34 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h4>Create Book Category
-                            <a href="{{ url('bookcategories') }}" class="btn btn-danger float-end">Back</a>
+                        <h4>Create Bookshelves
+                            <a href="{{ url('bookshelves') }}" class="btn btn-danger float-end">Back</a>
                         </h4>
                     </div>
                     <div class="card-body">
-                        <form action="{{ url('bookcategories') }}" method="POST">
+                        <form action="{{ url('bookshelves') }}" method="POST">
                             @csrf
 
                             <div class="mb-3">
-                                <label for="">Name</label>
-                                <input type="text" name="name" class="form-control" />
+                                <label for="">Office</label>
+                                <select class="form-select form-select-sm select2" aria-label="Default select example" name="office_id" id="office_id">
+                                    <option value=""  selected>Select Office</option>
+                                    @foreach ($office as $index => $item)
+                                                <option value="{{$item->id}}" {{ (request()->input('office_id') == $item->id) ? 'selected' :  '' }}>{{ $item->name }}({{$item->address}})</option>
+                                    @endforeach
+                                </select>
                             </div>
                             <div class="mb-3">
-                                <label for="">Details</label>
-                                <textarea type="text" name="details" class="form-control" /></textarea>
+                                <label for="">Office Area</label>
+                                <textarea type="text" name="area" class="form-control" /></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="">Bookshelf Number</label>
+                                <input type="text" name="number" class="form-control" />
+                            </div>
+                            <div class="mb-3">
+                                <label for="">Manager</label>
+                                <input type="text" name="manager" class="form-control" />
                             </div>
                             
                             <div class="mb-3">

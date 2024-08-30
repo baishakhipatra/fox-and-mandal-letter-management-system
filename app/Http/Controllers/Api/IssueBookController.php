@@ -62,7 +62,7 @@ class IssueBookController extends Controller
             }
 
             return response()->json([
-                'message' => 'Books iss ued successfully.',
+                'message' => 'Books issued successfully.',
                 'data' => $insertedData,
             ]);
         } catch (\Exception $e) {

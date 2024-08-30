@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('book_categories', function (Blueprint $table) {
+        Schema::create('bookmarks', function (Blueprint $table) {
             $table->id();
-            $table->int('user_id');
-            $table->string('name');
-            $table->text('details');
+            $table->foreignId('book_id')->constrained()->onDelete('cascade'); // Foreign key referencing users table
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Foreign key referencing users table
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('book_categories');
+        Schema::dropIfExists('bookmarks');
     }
 };

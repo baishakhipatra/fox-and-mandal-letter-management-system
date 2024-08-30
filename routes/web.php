@@ -67,8 +67,15 @@ Route::group(['middleware' => ['role:super-admin|admin']], function() {
     
     Route::resource('bookshelves', BookshelveController::class);
     Route::get('bookshelves/{userId}/delete', [BookshelveController::class, 'destroy']);
+    Route::get('bookshelves/export/csv', [BookshelveController::class, 'csvExport']);
+    Route::post('bookshelves/upload/csv', [BookshelveController::class, 'csvImport']);
+    
     
     Route::resource('books', BookController::class);
     Route::get('books/{userId}/delete', [BookController::class, 'destroy']);
+    Route::get('books/{userId}/status/change', [BookController::class, 'status']);
+    Route::get('books/export/csv', [BookController::class, 'csvExport']);
+    Route::post('books/upload/csv', [BookController::class, 'csvImport']);
+    Route::get('bookshelves/list/officewise/{userId}', [BookController::class, 'bookshelveOffice']);
 
 });
