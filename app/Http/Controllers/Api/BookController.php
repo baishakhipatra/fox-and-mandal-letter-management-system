@@ -58,6 +58,20 @@ class BookController extends Controller
                                     'data' =>$book
                                 ], 200);
     }
+    public function CategoryWiseBookList(Request $request)
+    {
+  
+        // $qrcode = $request->input('qrcode');
+
+        $book = Book::where('category_id', $request->category_id)
+            ->get();
+
+        // return response()->json($books);
+        return response()->json([
+                                    'message' => 'Book list by category wise',
+                                    'data' =>$book
+                                ], 200);
+    }
 
     // public function showBooksByBookShelveQRCode(Request $request)
     // {
