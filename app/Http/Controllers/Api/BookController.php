@@ -10,6 +10,24 @@ class BookController extends Controller
 {
     
 
+    public function index(Request $request)
+    {
+  
+        $query = $request->input('query');
+
+        $books = Book::get();
+
+        return response()->json(['message' => 'List of book',$books], 200);
+    }
+    // public function store(Request $request)
+    // {
+  
+    //     $query = $request->input('query');
+
+    //     $books = Book::get();
+
+    //     return response()->json(['message' => 'List of book',$books], 200);
+    // }
     public function search(Request $request)
     {
   
@@ -23,6 +41,21 @@ class BookController extends Controller
 
         // return response()->json($books);
         return response()->json(['message' => 'List of search data',$books], 200);
+    }
+
+    public function searchDetailsByQrCode(Request $request)
+    {
+  
+        $qrcode = $request->input('qrcode');
+
+        $book = Book::where('qrcode', $qrcode)
+            ->first();
+
+        // return response()->json($books);
+        return response()->json([
+                                    'message' => 'Details of book by Qr-Code',
+                                    'data' =>$book
+                                ], 200);
     }
 
 }

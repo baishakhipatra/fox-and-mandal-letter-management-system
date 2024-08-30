@@ -13,4 +13,9 @@ class Book extends Model
         'user_id','bookshelves_id', 'office_id', 'uid', 'qrcode', 'category_id',
         'title', 'author', 'publisher', 'edition', 'page', 'quantity',
     ];
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
+    }
 }

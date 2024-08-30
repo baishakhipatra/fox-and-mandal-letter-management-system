@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookController;
+use App\Http\Controllers\Api\IssueBookController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -25,3 +27,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('login', [AuthController::class, 'sendOtp']);
 Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
 Route::get('/books/search', [BookController::class, 'search']);
+Route::get('/books/list', [BookController::class, 'index']);
+Route::get('/books/details-by-qrcode', [BookController::class, 'searchDetailsByQrCode']);
+
+
+Route::post('/issue-books', [IssueBookController::class, 'store']);
+
+Route::get('/issue-books/list-by-user', [IssueBookController::class, 'listByUser']);
+
