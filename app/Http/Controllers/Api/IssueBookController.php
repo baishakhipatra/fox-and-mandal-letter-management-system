@@ -44,7 +44,7 @@ class IssueBookController extends Controller
             'book_id' => 'required|array',
             'user_id' => 'required', 
             'request_date' => 'required',
-            // 'approve_date' => 'nullable',
+            //  'approve_date' => 'nullable',
         ]);
 
         $insertedData = [];
