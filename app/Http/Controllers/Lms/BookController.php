@@ -21,7 +21,7 @@ class BookController extends Controller
      */
     function __construct()
     {
-         $this->middleware('permission:book list|book csv upload|book csv export', ['only' => ['index']]);
+         $this->middleware('permission:book list|book csv upload|book csv export|book status change', ['only' => ['index']]);
          $this->middleware('permission:create book', ['only' => ['create','store']]);
          $this->middleware('permission:update book', ['only' => ['edit','update']]);
          $this->middleware('permission:delete book', ['only' => ['destroy']]);
@@ -163,11 +163,18 @@ class BookController extends Controller
             ]
         ]);
     
-        $data = Bookshelve::find($id);
+        $data = Book::find($id);
         $data->office_id=$request['office_id'];
-        $data->number=$request['number'];
-        $data->area=$request['area'];
-        $data->manager=$request['manager'];
+        $data->bookshelves_id=$request['bookshelves_id'];
+        $data->category_id=$request['category_id'];
+        $data->user_id=Auth::user()->id;
+        $data->title=$request['title'];
+        $data->uid=$request['uid'];
+        $data->author=$request['author'];
+        $data->publisher=$request['publisher'];
+        $data->edition=$request['edition'];
+        $data->page=$request['page'];
+        $data->quantity=$request['quantity'];
         $data->save();
     
         return redirect()->route('books.index')
@@ -186,7 +193,18 @@ class BookController extends Controller
         $data->delete();
     
         return redirect()->route('books.index')
-                        ->with('success','Bookshelve deleted successfully');
+                        ->with('success','Book deleted successfully');
+    }
+    
+    public function status($id): RedirectResponse
+    {
+        $data = Book::find($id);
+        $status = ($data->status == 1) ? 0 : 1;
+        $data->status = $status;
+        $data->save();
+    
+        return redirect()->route('books.index')
+                        ->with('success','Book status changed successfully');
     }
     
     
@@ -229,22 +247,14 @@ class BookController extends Controller
 
             // Set column headers 
             // $fields = array('SR', 'QRCODE TITLE','CODE','DISTRIBUTOR','ASE','STORE NAME','STORE MOBILE','STORE EMAIL','STORE STATE','STORE ADDRESS','POINTS','DATE'); 
-            $fields = array('SR', 'Office','Office Location','Bookshelf Number','Category','Title','Uid','Author','Publisher','Edition','Page','Quantity','Created By','DATE'); 
+            $fields = array('SR', 'Office','Office Location','Bookshelf Number','Category','Title','Uid','Author','Publisher','Edition','Pages','Quantity','Created By','Status','DATE'); 
             fputcsv($f, $fields, $delimiter); 
 
             $count = 1;
 
             foreach($book as $row) {
                 $datetime = date('j F, Y h:i A', strtotime($row['created_at']));
-				$distributor_name=User::where('id',$row['distributor_id'])->first();
-                // $distributors=DB::table('users')->where('id',$row->distributor_id)->first();
-			    $ase=DB::table('teams')->where('store_id',$row->store_id)->first();
-			    if(!empty($ase)){
-			        $ase->ase=DB::table('users')->where('id',$ase->ase_id)->first();
-			    }
-			    //$ase->ase=DB::table('users')->where('id',$ase->ase_id)->first();
-			    $state=DB::table('states')->where('id',$row->state_id)->first();
-			    $area=DB::table('areas')->where('id',$row->area_id)->first();
+				
 
                 $lineData = array(
                     $count,
@@ -260,7 +270,7 @@ class BookController extends Controller
 					$row->page ?? 'NA',
 					$row->quantity ?? 'NA',
 					$row->user->name ?? 'NA',
-					
+					($row->status == 1) ? 'success' : 'danger',
 					$datetime,
                 );
 

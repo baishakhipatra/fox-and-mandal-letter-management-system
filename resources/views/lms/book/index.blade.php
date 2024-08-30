@@ -95,6 +95,9 @@
                                     <th>Category</th>
                                     <th>Title</th>
                                     <th>Uid</th>
+                                    <th>Author</th>
+                                    <th>Status</th>
+                                    <th>Qrcode</th>
                                     <th width="40%">Action</th>
                                 </tr>
                             </thead>
@@ -108,6 +111,8 @@
                                     <td>{{ $item->category->name }}</td>
                                     <td>{{ $item->title }}</td>
                                     <td>{{ $item->uid ??'' }}</td>
+                                    <td>{{ $item->author ??'' }}</td>
+                                    <td> @can('book status change')<a href="{{ url('books/'.$item->id.'/status/change') }}" ><span class="badge bg-{{($item->status == 1) ? 'success' : 'danger'}}">{{($item->status == 1) ? 'Active' : 'Inactive'}}</span></a>@endcan</td>
                                     <td><img src="https://bwipjs-api.metafloor.com/?bcid=qrcode&text={{$item->qrcode}}&height=6&textsize=10&scale=6&includetext" alt="" style="height: 105px;width:105px" id="{{$item->qrcode}}"></td>
                                     <td>
                                         @can('update book')
@@ -119,6 +124,7 @@
                                         @can('delete book')
                                         <a onclick="return confirm('Are you sure ?')" href="{{ url('books/'.$item->id.'/delete') }}" class="btn btn-danger mx-2">Delete</a>
                                         @endcan
+                                       
                                     </td>
                                 </tr>
                                 @endforeach

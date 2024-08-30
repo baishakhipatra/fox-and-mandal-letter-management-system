@@ -195,15 +195,7 @@ class BookshelveController extends Controller
 
             foreach($book as $row) {
                 $datetime = date('j F, Y h:i A', strtotime($row['created_at']));
-				$distributor_name=User::where('id',$row['distributor_id'])->first();
-                // $distributors=DB::table('users')->where('id',$row->distributor_id)->first();
-			    $ase=DB::table('teams')->where('store_id',$row->store_id)->first();
-			    if(!empty($ase)){
-			        $ase->ase=DB::table('users')->where('id',$ase->ase_id)->first();
-			    }
-			    //$ase->ase=DB::table('users')->where('id',$ase->ase_id)->first();
-			    $state=DB::table('states')->where('id',$row->state_id)->first();
-			    $area=DB::table('areas')->where('id',$row->area_id)->first();
+				
 
                 $lineData = array(
                     $count,

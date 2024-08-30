@@ -62,7 +62,7 @@
                                     <td>{{ $data->edition ??''}}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Page : </td>
+                                    <td class="text-muted">Pages : </td>
                                     <td>{{ $data->page ??''}}</td>
                                 </tr>
                                 <tr>
@@ -71,7 +71,7 @@
                                 </tr>
                                 <tr>
                                     <td class="text-muted">Status : </td>
-                                    <td>{{($data->status == 1) ? 'Active' : 'Inactive'}</td>
+                                    <td>{{($data->status == 1) ? 'Active' : 'Inactive'}}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-muted">Created By: </td>
