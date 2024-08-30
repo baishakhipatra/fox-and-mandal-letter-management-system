@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\IssueBookController;
+use App\Http\Controllers\Api\BookShelveController;
+use App\Http\Controllers\Api\BookmarkController;
 
 
 /*
@@ -34,4 +36,7 @@ Route::get('/books/details-by-qrcode', [BookController::class, 'searchDetailsByQ
 Route::post('/issue-books', [IssueBookController::class, 'store']);
 
 Route::get('/issue-books/list-by-user', [IssueBookController::class, 'listByUser']);
+Route::get('/books-shelve/search-by-qrcode', [BookShelveController::class, 'searchByQrCode']);
+Route::post('/bookmark', [BookmarkController::class, 'store']);
+Route::get('/bookmark/list', [BookmarkController::class, 'index']);
 
