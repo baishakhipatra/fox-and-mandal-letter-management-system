@@ -14,14 +14,7 @@ class Book extends Model
         'title', 'author', 'publisher', 'edition', 'page', 'quantity',
     ];
 
-    // public function users()
-    // {
-    //     return $this->belongsToMany(User::class);
-    // }
-    // public function bookshelve()
-    // {
-    //     return $this->belongsTo(Bookshelve::class);
-    // }
+
 	
     public function bookshelve()
     {

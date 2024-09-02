@@ -24,4 +24,9 @@ class IssueBook extends Model
         'is_return',
         'return_date'
     ];
+
+    public function book()
+    {
+        return $this->belongsTo(Book::class);
+    }
 }
