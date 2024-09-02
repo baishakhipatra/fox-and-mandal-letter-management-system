@@ -148,32 +148,33 @@ class BookController extends Controller
 
     public function showBooksByBookShelve(Request $request)
     {
-        // $bookshelve = Bookshelve::where('id', $request->id)->first();
+        $bookshelve = Bookshelve::where('number', $request->number)->first();
 
-        // if (!$bookshelve) {
-        //     return response()->json(['message' => 'Bookshelf not found'], 404);
-        // }
+        if (!$bookshelve) {
+            return response()->json(['message' => 'Bookshelf not found'], 404);
+        }
 
-        // $books = $bookshelve->books()->get();
+        $books = $bookshelve->books()->get();
 
-        // return response()->json([
-        //     'books' => $books->map(function ($book) {
-        //         return [
-        //             'message' => 'Book list by shelve QR-code wise',
-        //             'data'=> $book
-        //         ];
-        //     })
-        // ],200);
+        return response()->json([
+            'books' => $books->map(function ($book) {
+                return [
+                    'message' => 'Book list by shelve QR-code wise',
+                    'data'=> $book
+                ];
+            })
+        ],200);
 
        
 
-        $books = Book::where('bookshelves_id', $request->bookshelves_id)->get();
+        // $books = Book::where('bookshelves_id', $request->bookshelves_id)->get();
 
-        return response()->json([
-                    'message' => 'Book list by shelve wise',
-                    'data'=> $books
-        ],200);
+        // return response()->json([
+        //             'message' => 'Book list by shelve wise',
+        //             'data'=> $books
+        // ],200);
     }
 
 
 }
+ 
