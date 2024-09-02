@@ -37,6 +37,8 @@ Route::get('/books/category-wise-list', [BookController::class, 'CategoryWiseBoo
 Route::post('/issue-books', [IssueBookController::class, 'store']);
 
 Route::get('/issue-books/list-by-user', [IssueBookController::class, 'listByUser']);
+Route::patch('/return-book', [IssueBookController::class, 'returnBook']);
+
 Route::get('/books-shelve/search-by-qrcode', [BookShelveController::class, 'searchByQrCode']);
 Route::post('/bookmark', [BookmarkController::class, 'store']);
 Route::get('/bookmark/list', [BookmarkController::class, 'index']);
@@ -45,17 +47,3 @@ Route::get('/books/detai-by-book-shelves-qrcode', [BookController::class, 'showB
 Route::get('/books/detai-by-book-shelves', [BookController::class, 'showBooksByBookShelve']);
 
 
-// 1.Login with phone number (Api create)-1hr
-// 2.Otp Verification for login(Api create)->1hr
-// 3.Search Api for book(Api create)->2hr
-// 4.List Api for book(Api create)->30min
-// 5.Issue Book(Api create)(Continue)
-
-
-// 1.Book details by QR-code 
-// 2.Issue book api
-// 3.Issue book list user 
-// 4.book shelves searce by qr code 
-// 5.Book Bookmark 
-// 6. Bookmark list 
-// 7.Book details by book shelves qr code

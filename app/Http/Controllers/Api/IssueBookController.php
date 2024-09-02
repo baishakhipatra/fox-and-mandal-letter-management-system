@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\IssueBook;
 use App\Models\Book;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class IssueBookController extends Controller
 {
@@ -86,6 +87,26 @@ class IssueBookController extends Controller
                                     'message' => 'List of book of user',
                                     'data' =>$books
                                 ], 200);
+    }
+    public function returnBook(Request $request)
+    {
+  
+        // $validated = $request->validate([
+        //     'is_return' => 'required',
+        //     'return_date' => 'required|date',
+        // ]);
+
+        $issueBook = IssueBook::findOrFail($request->id);
+
+        $issueBook->update([
+            'is_return' => 1,
+            'return_date' => Carbon::now()->toDateString(),
+        ]);
+
+        return response()->json([
+            'message' => 'Book return status updated successfully.',
+            'data' => $issueBook
+        ]);
     }
     
     
