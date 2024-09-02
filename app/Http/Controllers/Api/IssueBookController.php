@@ -90,12 +90,6 @@ class IssueBookController extends Controller
     }
     public function returnBook(Request $request)
     {
-  
-        // $validated = $request->validate([
-        //     'is_return' => 'required',
-        //     'return_date' => 'required|date',
-        // ]);
-
         $issueBook = IssueBook::findOrFail($request->id);
 
         $issueBook->update([
@@ -105,6 +99,23 @@ class IssueBookController extends Controller
 
         return response()->json([
             'message' => 'Book return status updated successfully.',
+            'data' => $issueBook
+        ]);
+    }
+    public function transferBook(Request $request)
+    {
+
+        $issueBook = IssueBook::findOrFail($request->id);
+
+        
+        $issueBook->update([
+            'is_transfer' =>1,
+            'user_id_to_transfer' => $request->user_id,
+            'transfer_date' => Carbon::now()->toDateString(), 
+        ]);
+
+        return response()->json([
+            'message' => 'Book transfer status updated successfully.',
             'data' => $issueBook
         ]);
     }

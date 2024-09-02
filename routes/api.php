@@ -38,6 +38,7 @@ Route::post('/issue-books', [IssueBookController::class, 'store']);
 
 Route::get('/issue-books/list-by-user', [IssueBookController::class, 'listByUser']);
 Route::patch('/return-book', [IssueBookController::class, 'returnBook']);
+Route::patch('/transfer-book', [IssueBookController::class, 'transferBook']);
 
 Route::get('/books-shelve/search-by-qrcode', [BookShelveController::class, 'searchByQrCode']);
 Route::post('/bookmark', [BookmarkController::class, 'store']);
