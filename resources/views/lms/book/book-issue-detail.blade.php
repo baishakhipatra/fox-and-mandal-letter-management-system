@@ -53,6 +53,8 @@
                                     <th>Member Email</th>
                                     <th>Issue request date</th>
                                     <th>Issued date</th>
+                                    <th>Returned date</th>
+                                    <th>Remarks</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -64,6 +66,9 @@
                                     <td>{{ $item->user->email }}</td>
                                     <td>{{ $item->request_date }}</td>
                                     <td>{{ $item->approve_date }}</td>
+                                    <td>{{ $item->return_date }}</td>
+                                    <td>{{ $item->return_date }}</td>
+                                    <td>{{ $item->return_date }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
