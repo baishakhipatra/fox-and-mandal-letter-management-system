@@ -116,15 +116,17 @@
                                     <td><img src="https://bwipjs-api.metafloor.com/?bcid=qrcode&text={{$item->qrcode}}&height=6&textsize=10&scale=6&includetext" alt="" style="height: 105px;width:105px" id="{{$item->qrcode}}"></td>
                                     <td>
                                         @can('update book')
-                                        <a href="{{ url('books/'.$item->id.'/edit') }}" class="btn btn-success">Edit</a>
+                                        <a href="{{ url('books/'.$item->id.'/edit') }}" class="btn btn-success ">Edit</a>
                                         @endcan
                                         @can('view book')
-                                        <a href="{{ url('books/'.$item->id) }}" class="btn btn-success">View</a>
+                                        <a href="{{ url('books/'.$item->id) }}" class="btn btn-secondary mx-2">View</a>
                                         @endcan
                                         @can('delete book')
-                                        <a onclick="return confirm('Are you sure ?')" href="{{ url('books/'.$item->id.'/delete') }}" class="btn btn-danger mx-2">Delete</a>
+                                        <a onclick="return confirm('Are you sure ?')" href="{{ url('books/'.$item->id.'/delete') }}" class="btn btn-danger mx-2">Delete</a><br>
                                         @endcan
-                                       
+                                        @can('book issue list')
+                                        <a href="{{ url('books/'.$item->id.'/issue/list') }}" class="btn btn-primary mt-2">Number of Issues</a>
+                                        @endcan
                                     </td>
                                 </tr>
                                 @endforeach

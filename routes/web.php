@@ -77,5 +77,6 @@ Route::group(['middleware' => ['role:super-admin|admin']], function() {
     Route::get('books/export/csv', [BookController::class, 'csvExport']);
     Route::post('books/upload/csv', [BookController::class, 'csvImport']);
     Route::get('bookshelves/list/officewise/{userId}', [BookController::class, 'bookshelveOffice']);
-
+    Route::get('books/{userId}/issue/list', [BookController::class, 'bookIssueList']);
+    Route::get('books/issue/list/export/csv', [BookController::class, 'bookIssuecsvExport']);
 });
