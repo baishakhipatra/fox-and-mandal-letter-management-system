@@ -20,6 +20,13 @@ class BookController extends Controller
 
         return response()->json(['message' => 'List of book',$books], 200);
     }
+    public function bookDetails(Request $request)
+    {
+  
+        $books = Book::findOrFail($request->id);
+
+        return response()->json(['message' => 'Detail of book',$books], 200);
+    }
     // public function store(Request $request)
     // {
   

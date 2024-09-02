@@ -31,6 +31,7 @@ Route::post('login', [AuthController::class, 'sendOtp']);
 Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
 Route::get('/books/search', [BookController::class, 'search']);
 Route::get('/books/list', [BookController::class, 'index']);
+Route::get('/books/detail', [BookController::class, 'bookDetails']);
 Route::get('/books/details-by-qrcode', [BookController::class, 'searchDetailsByQrCode']);
 Route::get('/books/category-wise-list', [BookController::class, 'CategoryWiseBookList']);
 
