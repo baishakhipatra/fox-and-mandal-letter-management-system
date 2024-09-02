@@ -42,6 +42,7 @@ Route::post('/bookmark', [BookmarkController::class, 'store']);
 Route::get('/bookmark/list', [BookmarkController::class, 'index']);
 
 Route::get('/books/detai-by-book-shelves-qrcode', [BookController::class, 'showBooksByBookShelveQRCode']);
+Route::get('/books/detai-by-book-shelves', [BookController::class, 'showBooksByBookShelve']);
 
 
 // 1.Login with phone number (Api create)-1hr

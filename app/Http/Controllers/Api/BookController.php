@@ -107,43 +107,73 @@ class BookController extends Controller
     //     ]);
     // }
     public function showBooksByBookShelveQRCode(Request $request)
-{
-    // Find the bookshelf by its QR code
-    $bookshelve = Bookshelve::where('qrcode', $request->qrcode)->first();
+    {
+        // Find the bookshelf by its QR code
+        $bookshelve = Bookshelve::where('qrcode', $request->qrcode)->first();
 
-    // Check if the bookshelf exists
-    if (!$bookshelve) {
-        return response()->json(['message' => 'Bookshelf not found'], 404);
+        // Check if the bookshelf exists
+        if (!$bookshelve) {
+            return response()->json(['message' => 'Bookshelf not found'], 404);
+        }
+
+        // Retrieve the books related to the found bookshelf, with their office and category details
+        $books = $bookshelve->books()->with(['office', 'category'])->get();
+
+        // Format and return the book details as a JSON response
+        return response()->json([
+            'books' => $books->map(function ($book) {
+                return [
+                    'message' => 'Book list by shelve QR-code wise',
+                    'data'=> $book
+                    // 'id' => $book->id,
+                    // 'title' => $book->title,
+                    // 'author' => $book->author,
+                    // 'publisher' => $book->publisher,
+                    // 'edition' => $book->edition,
+                    // 'quantity' => $book->quantity,
+                    // 'office' => [
+                    //     'id' => $book->office->id,
+                    //     'name' => $book->office->name,
+                    //     'location' => $book->office->location,
+                    // ],
+                    // 'category' => [
+                    //     'id' => $book->category->id,
+                    //     'name' => $book->category->name,
+                    //     'description' => $book->category->description,
+                    // ],
+                ];
+            })
+        ],200);
     }
 
-    // Retrieve the books related to the found bookshelf, with their office and category details
-    $books = $bookshelve->books()->with(['office', 'category'])->get();
+    public function showBooksByBookShelve(Request $request)
+    {
+        // $bookshelve = Bookshelve::where('id', $request->id)->first();
 
-    // Format and return the book details as a JSON response
-    return response()->json([
-        'books' => $books->map(function ($book) {
-            return [
-                'data'=> $book
-                // 'id' => $book->id,
-                // 'title' => $book->title,
-                // 'author' => $book->author,
-                // 'publisher' => $book->publisher,
-                // 'edition' => $book->edition,
-                // 'quantity' => $book->quantity,
-                // 'office' => [
-                //     'id' => $book->office->id,
-                //     'name' => $book->office->name,
-                //     'location' => $book->office->location,
-                // ],
-                // 'category' => [
-                //     'id' => $book->category->id,
-                //     'name' => $book->category->name,
-                //     'description' => $book->category->description,
-                // ],
-            ];
-        }),
-    ]);
-}
+        // if (!$bookshelve) {
+        //     return response()->json(['message' => 'Bookshelf not found'], 404);
+        // }
+
+        // $books = $bookshelve->books()->get();
+
+        // return response()->json([
+        //     'books' => $books->map(function ($book) {
+        //         return [
+        //             'message' => 'Book list by shelve QR-code wise',
+        //             'data'=> $book
+        //         ];
+        //     })
+        // ],200);
+
+       
+
+        $books = Book::where('bookshelves_id', $request->bookshelves_id)->get();
+
+        return response()->json([
+                    'message' => 'Book list by shelve wise',
+                    'data'=> $books
+        ],200);
+    }
 
 
 }
