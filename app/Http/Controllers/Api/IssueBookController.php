@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\IssueBook;
+use App\Models\Bookshelve;
 use App\Models\Book;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
@@ -88,13 +89,40 @@ class IssueBookController extends Controller
                                     'data' =>$books
                                 ], 200);
     }
+
+    
     public function returnBook(Request $request)
     {
-        $issueBook = IssueBook::findOrFail($request->id);
+        
+        $validated = $request->validate([
+            'qrcode' => 'required|string',          
+            'book_id' => 'required|integer|exists:books,id', 
+        ]);
+
+        $bookshelf = Bookshelve::where('qrcode', $validated['qrcode'])->first();
+
+        if (!$bookshelf) {
+            return response()->json(['message' => 'No bookshelf found for the provided QR code.'], 404);
+        }
+
+        $book = Book::where('bookshelves_id', $bookshelf->id)
+                    ->where('id', $validated['book_id']) 
+                    ->first();
+
+        if (!$book) {
+            return response()->json(['message' => 'No book found on the provided bookshelf.'], 404);
+        }
+
+        $issueBook = IssueBook::where('book_id', $book->id)
+                              ->first();
+
+        if (!$issueBook) {
+            return response()->json(['message' => 'No active issue record found for this book or the book has already been returned.'], 404);
+        }
 
         $issueBook->update([
-            'is_return' => 1,
-            'return_date' => Carbon::now()->toDateString(),
+            'is_return' => 1,                 
+            'return_date' => Carbon::now()->toDateString(), 
         ]);
 
         return response()->json([
@@ -102,6 +130,8 @@ class IssueBookController extends Controller
             'data' => $issueBook
         ]);
     }
+
+
     public function transferBook(Request $request)
     {
 
