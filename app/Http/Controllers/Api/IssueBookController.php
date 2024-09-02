@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\IssueBook;
 use App\Models\Bookshelve;
 use App\Models\Book;
+use App\Models\BookTransfer;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 
@@ -134,21 +135,26 @@ class IssueBookController extends Controller
 
     public function transferBook(Request $request)
     {
-
-        $issueBook = IssueBook::findOrFail($request->id);
-
-        
-        $issueBook->update([
-            'is_transfer' =>1,
-            'user_id_to_transfer' => $request->user_id,
-            'transfer_date' => Carbon::now()->toDateString(), 
+        // Validate incoming request data
+        $validated = $request->validate([
+            'book_id' => 'required',
+            'from_user_id' => 'required', // ID of the user transferring the book
+            'to_user_id' => 'required',   // ID of the user receiving the book
         ]);
-
+   
+        $data = BookTransfer::create([
+            'is_transfer' => 1,
+            'from_user_id' => $validated['from_user_id'],
+            'to_user_id' => $validated['to_user_id'],
+            'transfer_date' => now()->toDateString(),
+        ]);
+        // Return a successful response with the updated issue record
         return response()->json([
             'message' => 'Book transfer status updated successfully.',
             'data' => $issueBook
         ]);
     }
+    
     
     
 }
