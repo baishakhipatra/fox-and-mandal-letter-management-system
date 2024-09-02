@@ -7,6 +7,7 @@ use App\Models\Book;
 use App\Models\Office;
 use App\Models\BookCategory;
 use App\Models\Bookshelve;
+use App\Models\IssueBook;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -21,7 +22,7 @@ class BookController extends Controller
      */
     function __construct()
     {
-         $this->middleware('permission:book list|book csv upload|book csv export|book status change', ['only' => ['index']]);
+         $this->middleware('permission:book list|book csv upload|book csv export|book status change|book issue list|book issue list csv download', ['only' => ['index']]);
          $this->middleware('permission:create book', ['only' => ['create','store']]);
          $this->middleware('permission:update book', ['only' => ['edit','update']]);
          $this->middleware('permission:delete book', ['only' => ['destroy']]);
@@ -433,5 +434,15 @@ class BookController extends Controller
        } else {
                 return response()->json(['error'=>false, 'resp'=>'Bookshelves List','data'=>$data]);
        } 
+    }
+    
+    //book issue list
+    public function bookIssueList($id): View
+    {
+       $data = IssueBook::where('book_id',$id)->paginate(25);
+       $book=Book::where('id',$id)->first();
+       return view('lms.book.book-issue-detail',compact('data','book'));
+       
+       
     }
 }
