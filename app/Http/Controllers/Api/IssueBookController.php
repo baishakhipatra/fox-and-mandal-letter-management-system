@@ -97,6 +97,7 @@ class IssueBookController extends Controller
         
         $validated = $request->validate([
             'qrcode' => 'required|string',          
+            'user_id' => 'required',          
             'book_id' => 'required|integer|exists:books,id', 
         ]);
 
@@ -114,8 +115,10 @@ class IssueBookController extends Controller
             return response()->json(['message' => 'No book found on the provided bookshelf.'], 404);
         }
 
-        $issueBook = IssueBook::where('book_id', $book->id)
-                              ->first();
+        $issueBook = IssueBook::where([
+            'book_id' => $book->id, 
+            'user_id' => $request->user_id,
+        ])->first();
 
         if (!$issueBook) {
             return response()->json(['message' => 'No active issue record found for this book or the book has already been returned.'], 404);
