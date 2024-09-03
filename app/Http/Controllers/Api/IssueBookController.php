@@ -99,14 +99,14 @@ class IssueBookController extends Controller
             'qrcode' => 'required|string',          
             'user_id' => 'required',          
             'book_id' => 'required|integer|exists:books,id', 
-            'number' =>'required',
-            'area' =>'required',
-            'approve_date' =>'required',    
+            // 'number' =>'required',
+            // 'area' =>'required',
+            // 'approve_date' =>'required',    
         ]);
 
         $bookshelf = Bookshelve::where('qrcode', $validated['qrcode'])
-        ->where('number', $validated['number'])
-       -> where('area', $validated['area'])
+        // ->where('number', $validated['number'])
+        //    -> where('area', $validated['area'])
         ->first();
 
         if (!$bookshelf) {
@@ -124,7 +124,7 @@ class IssueBookController extends Controller
         $issueBook = IssueBook::where([
             'book_id' => $book->id, 
             'user_id' => $request->user_id,
-            'approve_date' => $request->approve_date,
+            // 'approve_date' => $request->approve_date,
         ])->first();
 
         if (!$issueBook) {
@@ -138,18 +138,19 @@ class IssueBookController extends Controller
 
         return response()->json([
             'message' => 'Book return status updated successfully.',
-            'data' => $issueBook
+            'data' => $issueBook,
+            'shelve_data'=>$bookshelf
         ]);
     }
 
 
     public function transferBook(Request $request)
     {
-        // Validate incoming request data
+       
         $validated = $request->validate([
             'book_id' => 'required',
-            'from_user_id' => 'required', // ID of the user transferring the book
-            'to_user_id' => 'required',   // ID of the user receiving the book
+            'from_user_id' => 'required', 
+            'to_user_id' => 'required',   
         ]);
    
         $data = BookTransfer::create([
@@ -158,7 +159,7 @@ class IssueBookController extends Controller
             'to_user_id' => $validated['to_user_id'],
             'transfer_date' => now()->toDateString(),
         ]);
-        // Return a successful response with the updated issue record
+        
         return response()->json([
             'message' => 'Book transfer status updated successfully.',
             'data' => $issueBook
