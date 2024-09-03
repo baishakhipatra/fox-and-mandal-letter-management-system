@@ -99,9 +99,15 @@ class IssueBookController extends Controller
             'qrcode' => 'required|string',          
             'user_id' => 'required',          
             'book_id' => 'required|integer|exists:books,id', 
+            'number' =>'required',
+            'area' =>'required',
+            'approve_date' =>'required',    
         ]);
 
-        $bookshelf = Bookshelve::where('qrcode', $validated['qrcode'])->first();
+        $bookshelf = Bookshelve::where('qrcode', $validated['qrcode'])
+        ->where('number', $validated['number'])
+       -> where('area', $validated['area'])
+        ->first();
 
         if (!$bookshelf) {
             return response()->json(['message' => 'No bookshelf found for the provided QR code.'], 404);
@@ -118,6 +124,7 @@ class IssueBookController extends Controller
         $issueBook = IssueBook::where([
             'book_id' => $book->id, 
             'user_id' => $request->user_id,
+            'approve_date' => $request->approve_date,
         ])->first();
 
         if (!$issueBook) {
