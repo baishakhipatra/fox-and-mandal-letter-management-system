@@ -20,9 +20,8 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'mobile',
-        'otp',
         'password',
+        'role',
     ];
 
     /**
@@ -45,8 +44,50 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function bookstores(): HasMany
+    public function team()
     {
-        return $this->hasMany(IssueBooks::class);
+        return $this->belongsToMany(Team::class, 'team_members');
+    }
+
+    public function assignedLetters()
+    {
+        return $this->hasMany(Letter::class, 'send_to', 'id');
+    }
+
+    public function completedDeliveries()
+    {
+        return $this->hasMany(Delivery::class, 'delivered_to_user_id', 'id');
+    }
+
+    public function deliveredLetters()
+    {
+        return $this->assignedLetters()->where('status', 'delivered');
+    }
+
+    
+    const ROLE_SUPER_ADMIN = 'super admin';
+    const ROLE_RECEPTIONIST = 'Receptionist';
+    const ROLE_PEON = 'Peon';
+    const ROLE_MEMBER = 'Member';
+
+  
+    public function isSuperAdmin()
+    {
+        return $this->role === self::ROLE_SUPER_ADMIN;
+    }
+
+    public function isReceptionist()
+    {
+        return $this->role === self::ROLE_RECEPTIONIST;
+    }
+
+    public function isPeon()
+    {
+        return $this->role === self::ROLE_PEON;
+    }
+
+    public function isMember()
+    {
+        return $this->role === self::ROLE_MEMBER;
     }
 }

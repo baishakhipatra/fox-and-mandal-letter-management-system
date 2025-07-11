@@ -1162,3 +1162,28 @@ $(".main__nav a")
     $__default["default"].fn.filterMultiSelect.args = {};
 })($);
 //# sourceMappingURL=filter-multi-select-bundle.min.js.map
+function statusToggle(route) {
+    $.ajax({
+        url: route,
+        success: function(resp) {
+            if (resp.status == 200) {
+                toastFire('success', resp.message);
+            } else {
+                toastFire('error', resp.message);
+            }
+        }
+    });
+}
+
+function toastFire(type = 'error', title) {
+    Swal.fire({
+        toast: true,
+        position: 'bottom',
+        timer: 3000,
+        icon: type,
+        title: title,
+        showConfirmButton: false,
+        background: type === 'error' ? '#dc3545' : '#d1e7dd', // red for error
+        color: type === 'error' ? '#ffffff' : '#0f5132',  
+    });
+}

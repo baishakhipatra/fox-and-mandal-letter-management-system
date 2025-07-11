@@ -3,11 +3,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link href="{{ asset('backend/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="https://cdn-uicons.flaticon.com/uicons-bold-rounded/css/uicons-bold-rounded.css" rel="stylesheet">
     <link href="{{ asset('backend/css/style.css') }}" rel="stylesheet">
     <link rel="shortcut icon" href="{{ asset('backend/images/logo.png') }}" type="image/x-icon">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     {{-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/fontawesome.min.css" integrity="sha512-cHxvm20nkjOUySu7jdwiUxgGy11vuVPE9YeK89geLMLMMEOcKFyS2i+8wo0FOwyQO/bL8Bvq1KMsqK4bbOsPnA==" crossorigin="anonymous" referrerpolicy="no-referrer" /> --}}
     <title>Fox & Mandal </title>
 	
@@ -41,47 +44,58 @@
         </div>
 
         <nav class="main__nav">
+            @php
+                $role = auth()->user()->role; 
+            @endphp
             <ul>
-                <li class="{{ ( request()->is('home*') ) ? 'active' : '' }}"><a href="{{ route('home') }}"><i class="fi fi-br-home"></i> <span>Dashboard</span></a></li>
-                @can('view user')
-                <li class="{{ ( request()->is('users*') ) ? 'active' : '' }}"><a href="{{ route('users.index') }}"><i class="fi fi-br-database"></i> <span>User</span></a></li>
-                @endcan
-                @can('view role')
-                <li class="{{ ( request()->is('roles*') ) ? 'active' : '' }}"><a href="{{ route('roles.index') }}"><i class="fi fi-br-database"></i> <span>Role</span></a></li>
-                @endcan
-                @can('view permission')
-                <li class="{{ ( request()->is('permissions*') ) ? 'active' : '' }}"><a href="{{ route('permissions.index') }}"><i class="fi fi-br-database"></i> <span>Permission</span></a></li>
-                @endcan
-                @can('view office')
-                <li class="@if(request()->is('offices*')) { {{'active'}} }  @endif">
-                    <a href="#"><i class="fi fi-br-cube"></i> <span>Facility Management</span></a>
-                    <ul>
-                        @can('view office')
-                        <li class="{{ ( request()->is('offices*') ) ? 'active' : '' }}"><a href="{{ route('offices.index') }}"><i class="fi fi-br-database"></i> <span>Office Management</span></a></li>
-                        @endcan
-                    </ul>
-                </li>
-                @endcan
-                
-                @can('book category list')
-                <li class="@if(request()->is('bookcategories*')||request()->is('bookshelves*')||request()->is('books*')) { {{'active'}} }  @endif">
-                    <a href="#"><i class="fi fi-br-cube"></i> <span>Lms Management</span></a>
-                    <ul>
-                        @can('book category list')
-                        <li class="{{ ( request()->is('bookcategories*') ) ? 'active' : '' }}"><a href="{{route('bookcategories.index')}}"><i class="fi fi-br-database"></i> <span>Book Category Management</span></a></li>
-                        @endcan
-                        @can('bookshelve list')
-                        <li class="{{ ( request()->is('bookshelves*') ) ? 'active' : '' }}"><a href="{{route('bookshelves.index')}}"><i class="fi fi-br-database"></i> <span>Bookshelves Management</span></a></li>
-                        @endcan
-                        @can('book list')
-                        <li class="{{ ( request()->is('books*') ) ? 'active' : '' }}"><a href="{{route('books.index')}}"><i class="fi fi-br-database"></i> <span>Book Management</span></a></li>
-                        @endcan
-                    </ul>
-                </li>
-                @endcan
+                @if($role === 'super admin')
+                    <li class="{{ request()->is('home*') ? 'active' : '' }}">
+                        <a href="{{ route('home') }}"><i class="fi fi-br-home"></i> <span>Dashboard</span></a>
+                    </li>
+                    <li class="{{ request()->is('user-management*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.user.management') }}"><i class="fi fi-br-user"></i> <span>User Management</span></a>
+                    </li>
+                    <li class="{{ request()->is('letter-management*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.letter.management') }}"><i class="fi fi-br-envelope"></i> <span>Letter Management</span></a>
+                    </li>
+                    <li class="{{ request()->is('team-managenment*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.team.management') }}"><i class="fi fi-br-users-alt"></i> <span>Team Management</span></a>
+                    </li>
+                    <li class="{{ request()->is('delivery-management*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.delivery.index') }}"><i class="fi fi-br-paper-plane"></i> <span>Delivery Management</span></a>
+                    </li>
+                    <li class="{{ request()->is('report*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.report.index') }}"><i class="fi fi-br-clipboard-list"></i> <span>Reports</span></a>
+                    </li>
+                @elseif($role === 'Receptionist')
+                    <li class="{{ request()->is('home*') ? 'active' : '' }}">
+                        <a href="{{ route('home') }}"><i class="fi fi-br-home"></i> <span>Dashboard</span></a>
+                    </li>
+                    <li class="{{ request()->is('letter-management*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.letter.management') }}"><i class="fi fi-br-envelope"></i> <span>Letter Management</span></a>
+                    </li>
+
+                    <li class="{{ request()->is('delivery-management*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.delivery.index') }}"><i class="fi fi-br-paper-plane"></i> <span>Delivery Management</span></a>
+                    </li>
+                    <li class="{{ request()->is('report*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.report.index') }}"><i class="fi fi-br-clipboard-list"></i> <span>Reports</span></a>
+                    </li>
+                @elseif($role === 'Peon')
+                    <li class="{{ request()->is('home*') ? 'active' : '' }}">
+                        <a href="{{ route('home') }}"><i class="fi fi-br-home"></i> <span>Dashboard</span></a>
+                    </li>
+                    <li class="{{ request()->is('delivery-management*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.delivery.index') }}"><i class="fi fi-br-paper-plane"></i> <span>Delivery Panel</span></a>
+                    </li>
+                @elseif($role === 'Member')
+                    <li class="{{ request()->is('home*') ? 'active' : '' }}">
+                        <a href="{{ route('home') }}"><i class="fi fi-br-home"></i> <span>Dashboard</span></a>
+                    </li>
+                @endif
             </ul>
         </nav>
-         <div class="nav__footer">
+        <div class="nav__footer">
             <a href="javascript:void(0)" onclick="event.preventDefault();document.getElementById('logout-form').submit();"><i class="fi fi-br-cube"></i> <span>Log Out</span></a>
         </div>
     </aside>
@@ -91,7 +105,7 @@
                 <div class="col-auto ms-auto">
                     <div class="dropdown">
                         <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ Auth::user()->name }}
+                           {{ ucwords(Auth::user()->name) }} ({{ ucwords(Auth::user()->role) }})
                         </button>
                         <ul class="dropdown-menu test" aria-labelledby="dropdownMenuButton1">
                             <li><a class="dropdown-item" href="{{route('profile.edit')}}">Profile</a></li>
@@ -174,7 +188,7 @@
             toastFire('warning', '{{ Session::get('failure') }}');
         @endif
     </script>
-
+    
     @yield('script')
 </body>
 </html>
