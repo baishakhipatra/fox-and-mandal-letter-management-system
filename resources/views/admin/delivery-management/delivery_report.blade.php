@@ -60,15 +60,14 @@
         @endphp
         {{ $sendToName }}
     </div>
-    <div class="line"><span class="label">Document Type:</span> Incoming</div>
     <div class="line"><span class="label">Document Reference No:</span> {{ $letter->document_reference_no }}</div>
-    <div class="line"><span class="label">Document Date:</span>{{ $letter->document_date ? ',' . date('d-m-Y',strtotime($letter->document_date)) : '' }}</div>
+    <div class="line"><span class="label">Document Date:</span> {{ $letter->document_date ? date('d-m-Y', strtotime($letter->document_date)) : '' }}</div>
     <div class="line"><span class="label">Subject/Document Name:</span> {{ ucwords($letter->subject ?? 'N/A') }}</div>
-    <div class="line"><span class="label">Handed Over By:</span>{{ ucwords(optional($letter->handedOverByUser)->name ?? 'Unassigned') }}</div>
-    <div class="line"><span class="label">Delivered To:</span>{{ optional(optional($letter->delivery)->deliveredToUser)->name ? ucwords(optional($letter->delivery)->deliveredToUser->name) : '-' }}</div>
-    <div class="line"><span class="label">Created:</span> {{ \Carbon\Carbon::parse($letter->created_at)->format('n/j/Y g:i:s A') }}</div>
+    <div class="line"><span class="label">Handed Over By:</span> {{ ucwords(optional($letter->handedOverByUser)->name ?? 'Unassigned') }}</div>
+    <div class="line"><span class="label">Delivered To:</span> {{ optional(optional($letter->delivery)->deliveredToUser)->name ? ucwords(optional($letter->delivery)->deliveredToUser->name) : '-' }}</div>
+    <div class="line"><span class="label">Created:</span> {{ \Carbon\Carbon::parse($letter->created_at)->format('d-m-Y') }}</div>
     <div class="line"><span class="label">Status:</span> {{ ucfirst($letter->status) }}</div>
-    <div class="line"><span class="label">Generated on:</span> {{ now()->format('n/j/Y g:i:s A') }}</div>
+    <div class="line"><span class="label">Generated on:</span> {{ now()->format('d-m-Y') }}</div>
 
 </body>
 </html>

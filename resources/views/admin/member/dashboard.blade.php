@@ -50,9 +50,18 @@
                 <div class="card mt-3">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Letter List</h5>
-                        <a href="{{ route('home', ['status' => 'Delivered']) }}" class="btn btn-outline-dark btn-sm">
+                        {{-- <a href="{{ route('home', ['status' => 'Delivered']) }}" class="btn btn-outline-dark btn-sm">
                             Show Only Delivered
-                        </a>
+                        </a> --}}
+                        @if(request('status') === 'Delivered')
+                            <a href="{{ route('home') }}" class="btn btn-outline-secondary">
+                                Show All
+                            </a>
+                        @else
+                            <a href="{{ route('home', ['status' => 'Delivered']) }}" class="btn btn-outline-dark">
+                                Show Only Delivered
+                            </a>
+                        @endif
                     </div>
                     <div class="table-responsive">
                         <table class="table table-bordered mb-0">
@@ -112,7 +121,6 @@
 
                                                 <div class="row">
                                                     <div class="col-md-6 mb-2"><strong>Received From:</strong> {{ $letter->received_from }}</div>
-                                                    <div class="col-md-6 mb-2"><strong>Document Type:</strong> incoming</div>
                                                     <div class="col-md-6 mb-2"><strong>Document Name:</strong> {{ $letter->subject ?? 'N/A' }}</div>
                                                     <div class="col-md-6 mb-2"><strong>Send To:</strong>
                                                         {{-- @if($letter->delivery && $letter->delivery->deliveredToUser)

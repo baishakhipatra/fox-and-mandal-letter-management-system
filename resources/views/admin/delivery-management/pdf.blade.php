@@ -35,17 +35,7 @@
     <div class="info"><span class="label">Letter ID:</span> {{ $letter->letter_id }}</div>
     <div class="info"><span class="label">Status:</span> {{ ucfirst($letter->status) }}</div>
     <div class="info"><span class="label">Received From:</span> {{ ucwords($letter->received_from) }}</div>
-    <div class="info"><span class="label">Document Name:</span> {{ ucwords($letter->subject) ?? 'N/A' }}</div>
-    {{-- <div class="info"><span class="label">Send To:</span>
-        @if($letter->delivery && $letter->delivery->deliveredToUser)
-        {{ $letter->delivery->deliveredToUser->name }}
-        @if($letter->delivery->deliveredToUser->team->isNotEmpty())
-        ({{ $letter->delivery->deliveredToUser->team->pluck('name')->join(', ') }})
-        @endif
-        @else
-        {{ $letter->send_to ?? 'Not specified' }}
-        @endif
-    </div> --}}
+    <div class="info"><span class="label">Subject/Document Name:</span> {{ ucwords($letter->subject) ?? 'N/A' }}</div>
     <div class="info">
         <span class="label">Send To:</span>
         @php
@@ -68,11 +58,11 @@
     </div>
 
     <div class="info"><span class="label">Handed Over By:</span> {{ ucwords(optional($letter->handedOverByUser)->name ?? 'Unassigned') }}</div>
-    <div class="info"><span class="label">Reference No:</span> {{ $letter->reference_no ?? 'N/A' }}</div>
+    <div class="info"><span class="label">Reference No:</span> {{ $letter->document_reference_no ?? 'N/A' }}</div>
     <div class="info"><span class="label">Created:</span>
-        {{ \Carbon\Carbon::parse($letter->created_at)->format('m/d/Y') }}</div>
+        {{ \Carbon\Carbon::parse($letter->created_at)->format('d/m/Y') }}</div>
     <div class="info"><span class="label">Delivered Date:</span>
-        {{ $letter->delivery ? \Carbon\Carbon::parse($letter->delivery->delivered_at)->format('m/d/Y') : 'Not Delivered' }}
+        {{ $letter->delivery ? \Carbon\Carbon::parse($letter->delivery->delivered_at)->format('d/m/Y') : 'Not Delivered' }}
     </div>
 
     <div class="info"><span class="label">Delivered To:</span> {{ optional(optional($letter->delivery)->deliveredToUser)->name ? ucwords(optional($letter->delivery)->deliveredToUser->name) : '-' }}</div>

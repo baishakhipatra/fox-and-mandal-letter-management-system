@@ -53,6 +53,18 @@
                         </div>
 
 
+                        <div class="col-md-3">
+                            <label for="created_by" class="form-label">Created By</label>
+                            <select name="created_by" id="created_by" class="form-select">
+                                <option value="">-- All Receptionist--</option>
+                                @foreach($creators as $creator)
+                                    <option value="{{ $creator->id }}" {{ request('created_by') == $creator->id ? 'selected' : '' }}>
+                                        {{ ucwords($creator->name) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
 
                         <div class="col-md-3">
 
@@ -109,6 +121,10 @@
                                     <th>Document Reference No</th>
 
                                     <th>Document Date </th>
+
+                                    <th>Created By</th>
+
+                                    <th>Created At</th>
 
                                     <th>Status</th>
 
@@ -174,6 +190,10 @@
 
                                         <td>{{ $letter->document_date ? \Carbon\Carbon::parse($letter->document_date)->format('d-m-Y') : '' }}</td>
 
+                                        <td>{{Optional($letter->createdBy)->name ?? '_' }}</td>
+
+                                        <td>{{$letter->created_at ? \Carbon\Carbon::parse($letter->created_at)->format('d-m-Y') : '' }}</td>
+
                                         <td>
 
                                             <span class="badge bg-{{ $letter->status == 'Delivered' ? 'badge bg-success text-white' : 'badge bg-warning text-dark' }}">
@@ -185,29 +205,39 @@
                                         </td>
 
                                         <td>
-
-                                            <button class="btn btn-sm btn-outline-primary edit-letter-btn"
-
+                                            <!-- View Button -->
+                                            <button class="btn btn-sm btn-outline-info view-letter-btn"
                                                 data-id="{{ $letter->id }}"
-
-                                                data-received_from="{{ $letter->received_from }}"
-
-                                                data-send_to="{{ $letter->send_to }}"
-
+                                                data-received_from="{{ ucwords($letter->received_from) }}"
+                                                data-send_to="{{ ucwords($sendToName) }}"
                                                 data-document_reference_no="{{ $letter->document_reference_no }}"
-
                                                 data-document_date="{{ $letter->document_date }}"
-
-                                                data-subject="{{ $letter->subject }}"
-
-                                                data-handed_over_by="{{ $letter->handed_over_by }}"
-
-                                                data-document_image="{{ $letter->document_image }}"
-                                                data-bs-toggle="tooltip" data-bs-title="Edit">
-
-                                                <i class="fa fa-pen"></i>
-
+                                                data-subject="{{ ucwords($letter->subject) }}"
+                                                data-handed_over_by="{{ ucwords(optional($letter->handedOverByUser)->name) ?? '-' }}"
+                                                data-created_by="{{ ucwords(optional($letter->createdBy)->name) ?? '-' }}"
+                                                data-created_at="{{ $letter->created_at }}"
+                                                data-document_image="{{ $letter->document_image ? asset('uploads/letters/' . $letter->document_image) : '' }}"
+                                                data-bs-toggle="tooltip"
+                                                title="View">
+                                                <i class="fa fa-eye"></i>
                                             </button>
+
+                                            
+                                            @if($letter->status !== 'Delivered')
+                                            <button class="btn btn-sm btn-outline-primary edit-letter-btn"
+                                                data-id="{{ $letter->id }}"
+                                                data-received_from="{{ $letter->received_from }}"
+                                                data-send_to="{{ $letter->send_to }}"
+                                                data-document_reference_no="{{ $letter->document_reference_no }}"
+                                                data-document_date="{{ $letter->document_date }}"
+                                                data-subject="{{ $letter->subject }}"
+                                                data-handed_over_by="{{ $letter->handed_over_by }}"
+                                                data-document_image="{{ $letter->document_image }}"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-title="Edit">
+                                                <i class="fa fa-pen"></i>
+                                            </button>
+                                            @endif
 
                                             <button class="btn btn-sm btn-outline-danger deleteBtn" data-id="{{ $letter->id }}" data-bs-toggle="tooltip" data-bs-title="Delete"><i class="fa fa-trash"></i></button>
 
@@ -232,7 +262,35 @@
                 </div>
 
 
+                <!-- Letter View Modal -->
+                <div class="modal fade" id="viewLetterModal" tabindex="-1" aria-labelledby="viewLetterModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Letter Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <table class="table table-bordered">
+                                    <tr><th>Received From</th><td id="view_received_from"></td></tr>
+                                    <tr><th>Send To</th><td id="view_send_to"></td></tr>
+                                    <tr><th>Document Ref No</th><td id="view_document_reference_no"></td></tr>
+                                    <tr><th>Document Date</th><td id="view_document_date"></td></tr>
+                                    <tr><th>Subject</th><td id="view_subject"></td></tr>
+                                    <tr><th>Handed Over By</th><td id="view_handed_over_by"></td></tr>
+                                    <tr><th>Created By</th><td id="view_created_by"></td></tr>
+                                    <tr><th>Created At</th><td id="view_created_at"></td></tr>
+                                    <tr><th>Document Image</th>
+                                        <td>
+                                            <span id="view_document_image_wrapper"></span>
+                                        </td>
+                                    </tr>
 
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
 
                 {{-- modal --}}
@@ -241,7 +299,8 @@
 
                     <div class="modal-dialog modal-lg"> 
 
-                        <form id="letterForm" method="POST" action="{{ route('admin.letter.store') }}" enctype="multipart/form-data">
+                        <form id="letterForm" method="POST" action="{{ route('admin.letter.store') }}" enctype="multipart/form-data"
+                            onsubmit="disableSubmitButton()">
 
                             @csrf
 
@@ -279,28 +338,8 @@
 
                                             <label class="form-label">Send To (Member/Team)</label>
 
-                                            <select name="send_to" class="form-select">
-
+                                            <select name="send_to" class="form-select select2">
                                                 <option value="">Select member or team</option>
-
-
-
-                                                {{-- <optgroup label="Members">
-
-                                                    @foreach($members as $member)
-
-                                                        <option value="member_{{ $member->id }}">
-
-                                                            {{ $member->name }} ({{ ucfirst($member->role) }})
-
-                                                        </option>
-
-                                                    @endforeach
-
-                                                </optgroup> --}}
-
-
-
                                                 <optgroup label="Members">
 
                                                     @foreach($members as $member)
@@ -429,7 +468,7 @@
 
                                 <div class="modal-footer">
 
-                                    <button type="submit" class="btn btn-dark">Add Letter</button>
+                                    <button type="submit" id="addLetterSubmitBtn" class="btn btn-dark">Add Letter</button>
 
                                 </div>
 
@@ -480,18 +519,7 @@
                                         <div class="col-md-6">
 
                                             <label class="form-label">Send To (Member/Team)</label>
-
-                                            {{-- <select name="send_to" id="editSendTo" class="form-select">
-
-                                                <option value="" disabled selected>Select member/team</option>
-
-                                                @foreach($members as $member)
-
-                                                    <option value="{{ $member->name }}">{{ $member->name }}</option>
-
-                                                @endforeach
-
-                                            </select> --}}
+                                            
 
                                             <select name="send_to" id="editSendTo" class="form-select">
 
@@ -830,7 +858,11 @@
     });
 
 
-
+    function disableSubmitButton() {
+        const btn = document.getElementById('addLetterSubmitBtn');
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Saving...`;
+    }
 
 
 
@@ -885,7 +917,30 @@
 
     });
 
+    $(document).on('click', '.view-letter-btn', function () {
+        $('#view_received_from').text($(this).data('received_from'));
+        $('#view_send_to').text($(this).data('send_to'));
+        $('#view_document_reference_no').text($(this).data('document_reference_no'));
+        $('#view_document_date').text($(this).data('document_date'));
+        $('#view_subject').text($(this).data('subject'));
+        $('#view_handed_over_by').text($(this).data('handed_over_by'));
+        $('#view_created_by').text($(this).data('created_by'));
+        $('#view_created_at').text($(this).data('created_at'));
 
+        const imageUrl = $(this).data('document_image');
+
+        if (imageUrl && imageUrl !== '') {
+            $('#view_document_image_wrapper').html(
+                `<a href="${imageUrl}" target="_blank" class="btn btn-sm btn-outline-info">View Image</a>`
+            );
+        } else {
+            $('#view_document_image_wrapper').html('<span>No Image Available</span>');
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById('viewLetterModal'));
+        modal.show();
+    
+    });
 
 </script>
 

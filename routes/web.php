@@ -228,6 +228,7 @@ Route::middleware(['auth', 'role:super admin'])->group(function () {
         Route::post('/update/{id}', [LetterManagementController::class, 'update'])->name('admin.letter.update');
         Route::post('/delete/{id}',[LetterManagementController::class, 'delete'])->name('admin.letter.delete');
         Route::get('/export-letters', [LetterManagementController::class, 'exportLetters'])->name('admin.letter.export');
+
     });
 
     Route::prefix('team-managenment')->group(function() {
@@ -261,6 +262,7 @@ Route::middleware(['auth', 'role:Receptionist,super admin'])->group(function () 
         Route::post('/update/{id}', [LetterManagementController::class, 'update'])->name('admin.letter.update');
         Route::post('/delete/{id}',[LetterManagementController::class, 'delete'])->name('admin.letter.delete');
         Route::get('/export-letters', [LetterManagementController::class, 'exportLetters'])->name('admin.letter.export');
+
     });
 });
 

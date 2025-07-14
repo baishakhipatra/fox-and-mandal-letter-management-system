@@ -22,23 +22,18 @@ class LetterManagementController extends Controller
             $lettersQuery->where('created_by', $user->id);
         }
 
-        // if ($request->filled('from_date')) {
-        //     // Parse the 'from_date' and set it to the beginning of the day (00:00:00)
-        //     $fromDate = Carbon::parse($request->from_date)->startOfDay();
-        //     $lettersQuery->where('created_at', '>=', $fromDate);
-        // }
 
-        // if ($request->filled('to_date')) {
-        //     // Parse the 'to_date' and set it to the end of the day (23:59:59)
-        //     $toDate = Carbon::parse($request->to_date)->endOfDay();
-        //     $lettersQuery->where('created_at', '<=', $toDate);
-        // }
+
 
         if ($request->filled('from_date') && $request->filled('to_date')) {
             $from = Carbon::parse($request->from_date)->startOfDay();
             $to = Carbon::parse($request->to_date)->endOfDay();
 
             $lettersQuery->whereBetween('created_at', [$from, $to]);
+        }
+
+        if ($request->filled('created_by')) {
+            $lettersQuery->where('created_by', $request->created_by);
         }
 
         if ($request->filled('status')) {
@@ -51,8 +46,9 @@ class LetterManagementController extends Controller
         $members = User::where('role', 'Member')->with('team')->get();
         $teams = Team::all();
         $users = User::whereIn('role', ['Peon', 'Receptionist'])->get();
+        $creators = User::whereIn('role', ['supar admin','Receptionist'])->get();
 
-        return view('admin.letter-management.index', compact('letters', 'members', 'users', 'teams'));
+        return view('admin.letter-management.index', compact('letters', 'members', 'users', 'teams', 'creators'));
     }
 
 
@@ -219,4 +215,37 @@ class LetterManagementController extends Controller
             "Content-Disposition" => "attachment; filename=$filename",
         ]);
     }
+
+    public function sendToAutocomplete(Request $request)
+    {
+        $keyword = $request->get('keyword');
+
+        $members = User::where('role', 'member')
+            ->where('name', 'like', "%{$keyword}%")
+            ->limit(10)
+            ->get();
+
+        $teams = Team::where('name', 'like', "%{$keyword}%")
+            ->limit(10)
+            ->get();
+
+        $results = [];
+
+        foreach ($members as $member) {
+            $results[] = [
+                'id' => 'member_' . $member->id,
+                'text' =>  ucwords($member->name),
+            ];
+        }
+
+        foreach ($teams as $team) {
+            $results[] = [
+                'id' => 'team_' . $team->id,
+                'text' =>  ucwords($team->name) . ' (Team)',
+            ];
+        }
+
+        return response()->json($results);
+    }
+
 }

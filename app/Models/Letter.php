@@ -42,5 +42,10 @@ class Letter extends Model
         return $this->belongsTo(User::class, 'handed_over_by');
     }
 
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
 
 }
