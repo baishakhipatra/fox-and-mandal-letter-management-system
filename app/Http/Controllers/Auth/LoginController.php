@@ -54,4 +54,25 @@ class LoginController extends Controller
         // Redirect to login page after logout
         return redirect('/login');
     }
+
+    protected function credentials(Request $request)
+    {
+        return [
+            'email' => $request->get('email'),
+            'password' => $request->get('password'),
+            'status' => 1,
+        ];
+    }
+
+    /**
+     * Override the sendFailedLoginResponse to customize error message
+     */
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        return redirect()->back()
+            ->withInput($request->only($this->username(), 'remember'))
+            ->withErrors([
+            $this->username() => __('These credentials do not match our records or your account may be inactive.'),
+        ]);
+    }
 }

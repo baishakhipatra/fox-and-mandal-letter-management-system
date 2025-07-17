@@ -52,19 +52,19 @@
 
                         </div>
 
-
-                        <div class="col-md-3">
-                            <label for="created_by" class="form-label">Created By</label>
-                            <select name="created_by" id="created_by" class="form-select">
-                                <option value="">-- All Receptionist--</option>
-                                @foreach($creators as $creator)
-                                    <option value="{{ $creator->id }}" {{ request('created_by') == $creator->id ? 'selected' : '' }}>
-                                        {{ ucwords($creator->name) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
+                        @if(Auth::user()->role === 'super admin')
+                            <div class="col-md-3">
+                                <label for="created_by" class="form-label">Created By</label>
+                                <select name="created_by" id="created_by" class="form-select">
+                                    <option value="">-- All Receptionist--</option>
+                                    @foreach($creators as $creator)
+                                        <option value="{{ $creator->id }}" {{ request('created_by') == $creator->id ? 'selected' : '' }}>
+                                            {{ ucwords($creator->name) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
 
                         <div class="col-md-3">
 
@@ -190,7 +190,7 @@
 
                                         <td>{{ $letter->document_date ? \Carbon\Carbon::parse($letter->document_date)->format('d-m-Y') : '' }}</td>
 
-                                        <td>{{Optional($letter->createdBy)->name ?? '_' }}</td>
+                                        <td>{{ ucwords(optional($letter->createdBy)->name ?? '_') }}</td>
 
                                         <td>{{$letter->created_at ? \Carbon\Carbon::parse($letter->created_at)->format('d-m-Y') : '' }}</td>
 
@@ -276,11 +276,11 @@
                                     <tr><th>Send To</th><td id="view_send_to"></td></tr>
                                     <tr><th>Document Ref No</th><td id="view_document_reference_no"></td></tr>
                                     <tr><th>Document Date</th><td id="view_document_date"></td></tr>
-                                    <tr><th>Subject</th><td id="view_subject"></td></tr>
+                                    <tr><th>Subject/Document No.</th><td id="view_subject"></td></tr>
                                     <tr><th>Handed Over By</th><td id="view_handed_over_by"></td></tr>
                                     <tr><th>Created By</th><td id="view_created_by"></td></tr>
                                     <tr><th>Created At</th><td id="view_created_at"></td></tr>
-                                    <tr><th>Document Image</th>
+                                    <tr><th>Document Image/PDF</th>
                                         <td>
                                             <span id="view_document_image_wrapper"></span>
                                         </td>
@@ -338,7 +338,7 @@
 
                                             <label class="form-label">Send To (Member/Team)</label>
 
-                                            <select name="send_to" class="form-select select2">
+                                            <select name="send_to" class="form-select select2-send-to">
                                                 <option value="">Select member or team</option>
                                                 <optgroup label="Members">
 
@@ -521,7 +521,7 @@
                                             <label class="form-label">Send To (Member/Team)</label>
                                             
 
-                                            <select name="send_to" id="editSendTo" class="form-select">
+                                            <select name="send_to" id="editSendTo" class="form-select select2">
 
                                                 <option value="" disabled selected>Select member/team</option>
 
@@ -600,10 +600,13 @@
                                             <select name="handed_over_by" id="editHandedOverBy" class="form-select">
 
                                                 <option value="" disabled selected>Select person</option>
-
                                                 @foreach($users as $user)
 
-                                                    <option value="{{ $user->id }}">{{ ucwords($user->name) }} ({{ ucfirst($user->role) }})</option>
+                                                    @if(!(Auth::user()->role === 'Receptionist' && Auth::id() === $user->id))
+
+                                                        <option value="{{ $user->id }}">{{ ucwords($user->name) }} ({{ ucwords($user->role) }})</option>
+
+                                                    @endif
 
                                                 @endforeach
 
@@ -931,7 +934,7 @@
 
         if (imageUrl && imageUrl !== '') {
             $('#view_document_image_wrapper').html(
-                `<a href="${imageUrl}" target="_blank" class="btn btn-sm btn-outline-info">View Image</a>`
+                `<a href="${imageUrl}" target="_blank" class="btn btn-sm btn-outline-info">View Image/PDF</a>`
             );
         } else {
             $('#view_document_image_wrapper').html('<span>No Image Available</span>');
@@ -941,6 +944,25 @@
         modal.show();
     
     });
+
+
+    $(document).ready(function () {
+        $('.select2-send-to').select2({
+            placeholder: 'Select member or team',
+            allowClear: true,
+            dropdownParent: $('#addLetterModal'),
+            width: '100%'
+        });
+
+        $('#editSendTo').select2({
+            dropdownParent: $('#editLetterModal'), 
+            width: '100%',
+            placeholder: 'Select member/team',
+            allowClear: true
+        });
+    });
+
+
 
 </script>
 

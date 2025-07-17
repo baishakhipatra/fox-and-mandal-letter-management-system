@@ -43,10 +43,10 @@ class LetterManagementController extends Controller
         //dd($lettersQuery->toSql(), $lettersQuery->getBindings());
         $letters = $lettersQuery->paginate(10);
 
-        $members = User::where('role', 'Member')->with('team')->get();
-        $teams = Team::all();
-        $users = User::whereIn('role', ['Peon', 'Receptionist'])->get();
-        $creators = User::whereIn('role', ['supar admin','Receptionist'])->get();
+        $members = User::where('role', 'Member')->with('team')->where('status', 1)->get();
+        $teams = Team::where('status', 1)->get();
+        $users = User::whereIn('role', ['Peon', 'Receptionist'])->where('status', 1)->get();
+        $creators = User::whereIn('role', ['supar admin','Receptionist'])->where('status', 1)->get();
 
         return view('admin.letter-management.index', compact('letters', 'members', 'users', 'teams', 'creators'));
     }
@@ -130,9 +130,9 @@ class LetterManagementController extends Controller
 
     public function delete($id){
         $letter = Letter::findOrFail($id);
-        if ($letter->document_image && file_exists(public_path('uploads/letters/' . $letter->document_image))) {
-            unlink(public_path('uploads/letters/' . $letter->document_image));
-        }
+        // if ($letter->document_image && file_exists(public_path('uploads/letters/' . $letter->document_image))) {
+        //     unlink(public_path('uploads/letters/' . $letter->document_image));
+        // }
         $letter->delete();
         return response()->json(['status' => true, 'message' => 'Letter Deleted Successfully']);
     }

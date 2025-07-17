@@ -4,7 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, Team};
+use App\Models\{User, Team, Letter};
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
@@ -14,8 +14,10 @@ class UserManagementController extends Controller
 {
     public function index()
     {
-        $users = User::with('team')->where('role', '!=', 'Super Admin')->orderBy('created_at', 'desc')->paginate(10);
-        $teams = Team::all();
+        $users = User::with('team')
+                ->where('role', '!=', 'Super Admin')
+                ->orderBy('created_at', 'desc')->paginate(10);
+        $teams = Team::where('status', 1)->get();
         return view('admin.user-management.index',compact('users','teams'));
     }
 
@@ -43,8 +45,8 @@ class UserManagementController extends Controller
             'user_id' => $user->id,
             'created_at' => now(),
             'updated_at' => now(),
-        ]);
-    }
+            ]);
+        }
 
         return response()->json(['status' => true, 'message' => 'User Added Successfully']);
     }
@@ -71,15 +73,15 @@ class UserManagementController extends Controller
             'role'  => $request->role,
         ]);
 
-        // Handle team assignment
+       
         if ($request->role === 'Member' && $request->filled('team_id')) {
-            // Remove existing and insert new
+         
             DB::table('team_members')->updateOrInsert(
                 ['user_id' => $user->id],
                 ['team_id' => $request->team_id, 'updated_at' => now(), 'created_at' => now()]
             );
         } else {
-            // If not member anymore, remove from team_members
+            
             DB::table('team_members')->where('user_id', $user->id)->delete();
         }
 
@@ -99,19 +101,36 @@ class UserManagementController extends Controller
         return response()->json(['status' => false, 'message' => 'User Not Found']);
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
         $user = User::find($id);
-        if ($user)
-        {
-            $user->delete();
-            return response()->json(['status' => true, 'message' => 'User Deleted Successfully']);
+
+        if (!$user) {
+            return response()->json(['status' => false, 'message' => 'User Not Found']);
         }
-        return response()->json(['status' => false, 'message' => 'User Not Found']);
+
+        $isCreator = Letter::where('created_by', $id)->exists();
+
+        $isHandler = Letter::where('handed_over_by', $id)->exists();
+
+        $isRecipient = Letter::where('send_to', 'member_' . $id)->exists();
+
+        if ($isCreator || $isHandler || $isRecipient) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User cannot be deleted because they are linked to Letters.'
+            ]);
+        }
+
+        $user->delete();
+
+        return response()->json(['status' => true, 'message' => 'User Deleted Successfully']);
     }
+
 
     public function exportUsers()
     {
-        $users = User::select('name', 'email', 'role', 'status')->get();
+        $users = User::select('name', 'email', 'role', 'status')->where('role', '!=', 'Super Admin')->where('status',1)->get();
         $csvHeader = ['Name', 'Email', 'Role', 'Status'];
         $filename = 'users_export_' . now()->format('Y-m-d_H-i-s') . '.csv';
 

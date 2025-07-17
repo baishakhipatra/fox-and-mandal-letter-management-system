@@ -63,7 +63,7 @@
                                 <option value="">All Users</option>
                                 @foreach($users as $u)
                                     <option value="{{ $u->id }}" {{ request('user_id') == $u->id ? 'selected' : '' }}>
-                                        {{ $u->name }} ({{ $u->role }})
+                                        {{ ucwords($u->name) }} ({{ ucwords($u->role) }})
                                     </option>
                                 @endforeach
                             </select>
@@ -84,7 +84,8 @@
 
                         <div class="col-md-3 d-flex align-items-end">
                             <button type="submit" class="btn btn-primary me-2">Filter</button>
-                            <a href="{{ route('admin.report.index') }}" class="btn btn-outline-secondary">Reset</a>
+                            <a href="{{ route('admin.report.index') }}" class="btn btn-outline-secondary me-2">Reset</a>
+                            <a href="{{route('admin.letter.export') }}" class="btn btn-primary">Export</a>
                         </div>
                     </div>
                 </form>
@@ -93,7 +94,7 @@
                     @if(!empty($performanceData))
                         <div class="peon-row">
                             <div class="peon-info">
-                                <div class="peon-name">{{ $performanceData['name'] }}</div>
+                                <div class="peon-name">{{ ucwords($performanceData['name']) }}</div>
                                 <div class="peon-role">{{ ucfirst($performanceData['role']) }}</div>
                             </div>
                             <div class="peon-metrics">

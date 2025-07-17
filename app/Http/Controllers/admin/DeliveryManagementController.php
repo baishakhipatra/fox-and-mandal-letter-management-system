@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-use App\Models\{Letter,User,Delivery};
+use App\Models\{Letter,User,Delivery, Team};
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Response;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -50,7 +50,15 @@ class DeliveryManagementController extends Controller
         $users = User::with('team')->where('role', '!=', 'Super Admin')->get();
         $members = User::where('role', 'member')->with('team:id,name')->get(['id', 'name']);
 
-        return view('admin.delivery-management.index', compact('letters', 'members','users'));
+        $letterTeamMap = [];
+        foreach ($letters as $letter) {
+            if (Str::startsWith($letter->send_to, 'team_')) {
+                $teamId = Str::after($letter->send_to, 'team_');
+                $letterTeamMap[$letter->id] = (int) $teamId;
+            }
+        }
+
+        return view('admin.delivery-management.index', compact('letters', 'members','users', 'letterTeamMap'));
     }
 
     public function confirmDelivery(Request $request)
@@ -106,4 +114,40 @@ class DeliveryManagementController extends Controller
         $pdf = Pdf::loadView('admin.delivery-management.delivery_report', compact('letter'));
         return $pdf->download("delivery-confirmation-{$letter->letter_id}.pdf");
     }
+
+    public function getTeamMembers($teamId)
+    {
+       // $team = Team::with('members.team')->find($teamId);
+        $team = Team::with(['members' => function($query) {
+            $query->where('status', 1);
+        }, 'members.team'])->find($teamId);
+
+        if (!$team) {
+            return response()->json(['members' => []]);
+        }
+
+        $members = $team->members->map(function ($member) {
+            return [
+                'id' => $member->id,
+                'name' => ucwords($member->name),
+                'teams' => $member->team->pluck('name')->toArray(),
+            ];
+        });
+
+        return response()->json(['members' => $members]);
+    }
+
+    public function getAllMembers()
+    {
+        $members = User::where('role', 'member')->where('status',1)->with('team')->get()->map(function ($member) {
+            return [
+                'id' => $member->id,
+                'name' => ucwords($member->name),
+                'teams' => $member->team->pluck('name')->toArray(),
+            ];
+        });
+
+        return response()->json(['members' => $members]);
+    }
+
 }

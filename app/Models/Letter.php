@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Letter extends Model
 {
+    use SoftDeletes;
     use HasFactory;
     protected $table = 'letters';
     protected $fillable = [
@@ -29,7 +31,7 @@ class Letter extends Model
      */
     protected $casts = [
         'created_at' => 'datetime',
-        'updated_at' => 'datetime', // Good to include this too
+        'updated_at' => 'datetime', 
     ];
 
     public function delivery()
@@ -47,5 +49,9 @@ class Letter extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function team()
+    {
+        return $this->belongsTo(Team::class, 'team_id');
+    }
 
 }

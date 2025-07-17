@@ -246,10 +246,13 @@ Route::middleware(['auth', 'role:super admin'])->group(function () {
         Route::post('/letters/confirm-delivery', [DeliveryManagementController::class, 'confirmDelivery'])->name('admin.delivery.confirm'); 
         Route::get('/letters/download/{id}',[DeliveryManagementController::class, 'downloadReport'])->name('admin.delivery.download');
         Route::get('/delivery/report/{id}',[DeliveryManagementController::class, 'deliveryReportPdf'])->name('admin.delivery.report');
+        Route::get('/get-team-members/{team}',[DeliveryManagementController::class, 'getTeamMembers'])->name('admin.delivery.getTeamMembers');
+        Route::get('/get-all-members',[DeliveryManagementController::class, 'getAllMembers'])->name('admin.delivery.getAllMembers');
     });
 
     Route::prefix('Report')->group(function (){
         Route::get('/', [ReportController::class, 'index'])->name('admin.report.index');
+        Route::get('/export', [ReportController::class, 'reportExport'])->name('admin.report.export');
     });
 });
 
@@ -272,12 +275,16 @@ Route::middleware(['auth', 'role:Receptionist,super admin,Peon,Member'])->group(
         Route::post('/letters/confirm-delivery', [DeliveryManagementController::class, 'confirmDelivery'])->name('admin.delivery.confirm');
         Route::get('/letters/download/{id}', [DeliveryManagementController::class, 'downloadReport'])->name('admin.delivery.download');
         Route::get('/delivery/report/{id}', [DeliveryManagementController::class, 'deliveryReportPdf'])->name('admin.delivery.report');
+        Route::get('/get-team-members/{team}',[DeliveryManagementController::class, 'getTeamMembers'])->name('admin.delivery.getTeamMembers');
+        Route::get('/get-all-members',[DeliveryManagementController::class, 'getAllMembers'])->name('admin.delivery.getAllMembers');
     });
 });
 
 Route::middleware(['auth', 'role:Receptionist,super admin'])->group(function (){
     Route::prefix('Report')->group(function (){
         Route::get('/', [ReportController::class, 'index'])->name('admin.report.index');
+        Route::get('/export', [ReportController::class, 'reportExport'])->name('admin.report.export');
+        Route::get('/export-letters', [LetterManagementController::class, 'exportLetters'])->name('admin.letter.export');
     });
 });
 

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Team, User, TeamMember};
+use App\Models\{Team, User, TeamMember, Letter};
 
 class TeamManagementController extends Controller
 {
@@ -12,7 +12,9 @@ class TeamManagementController extends Controller
     {
         $teams = Team::orderBy('id','desc')->get();
         $users = User::where('role', '!=', 'Super Admin')
-                       ->where('role',['member'])->get();
+                       ->where('role',['member'])
+                       ->where('status', 1)
+                       ->get();
     
         return view('admin.team-management.index',compact('teams','users'));
     }
@@ -61,18 +63,6 @@ class TeamManagementController extends Controller
         ]);
     }
 
-    // public function assignMembers(Request $request)
-    // {
-    //     $request->validate([
-    //         'team_id' => 'required|exists:teams,id',
-    //         'member_ids' => 'required|array'
-    //     ]);
-
-    //     $team = Team::find($request->team_id);
-    //     $team->members()->sync($request->member_ids);
-
-    //     return response()->json(['message' => 'Members Assigned Successfully']);
-    // }
 
     public function statusToggle($id)
     {
@@ -85,16 +75,34 @@ class TeamManagementController extends Controller
         }
         return response()->json(['status' => false, 'message' => 'User Not Found']);
     }
-
+    
 
     public function delete($id)
     {
         $team = Team::find($id);
 
-        if($team){
-            $team->delete();
-            return response()->json(['status' => true, 'message' => 'Team Deleted Successfully']);
+        if (!$team) {
+            return response()->json(['status' => false, 'message' => 'Team Not Found']);
         }
-        return response()->json(['status' => false, 'message' => 'Team Not Found']);
+
+        $hasMembers = $team->members()->exists();
+
+        $hasLetters = Letter::where('send_to', 'team_' . $id)->exists();
+
+        if ($hasMembers || $hasLetters) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Team cannot be deleted because it has assigned Members or linked Letters.'
+            ]);
+        }
+
+        $team->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Team Deleted Successfully'
+        ]);
     }
+
+
 }

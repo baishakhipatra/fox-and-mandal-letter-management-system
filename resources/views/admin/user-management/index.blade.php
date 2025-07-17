@@ -83,7 +83,9 @@
 
                                     <div class="mt-2 text-muted">
 
-                                        Expected columns: <code>name</code>, <code>email</code>, <code>password</code>, <code>role</code>
+                                        Expected columns: <code>name</code>, <code>email</code>, <code>password</code>, <code>role</code><br>
+                                        Allowed roles: <code>Peon</code>, <code>Member</code>, <code>Receptionist</code><br>
+                                        <a href="{{ asset('sample/user_import_sample.xlsx') }}" class="text-decoration-underline" download>Download sample file</a>
 
                                     </div>
 
@@ -378,7 +380,7 @@
 
                                             @foreach($teams as $team)
 
-                                                <option value="{{ $team->id }}">{{ $team->name }}</option>
+                                                <option value="{{ $team->id }}">{{ ucwords($team->name) }}</option>
 
                                             @endforeach
 
