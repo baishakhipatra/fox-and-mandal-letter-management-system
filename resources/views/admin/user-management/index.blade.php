@@ -156,10 +156,13 @@
 
                                         <td>{{ $user->email }}</td>
 
-                                        <td>{{ $user->role }}</td>
+                                        @if($user->role == 'Receptionist')
+                                            <td>{{ $user->role }}-{{$user->branch_name}}</td>
+                                        @else
+                                            <td>{{ $user->role }}</td>
+                                        @endif
 
                                         <td>
-
                                             <div class="form-check form-switch">
 
                                                 <input type="checkbox"
@@ -187,6 +190,8 @@
                                                 data-role="{{ $user->role }}"
 
                                                 data-team-id="{{ optional($user->team->first())->id }}"
+
+                                                data-branch-name= "{{$user->branch_name}}"
 
                                                 data-bs-toggle="tooltip" data-bs-title="Edit">
 
@@ -298,6 +303,23 @@
 
                             </div>
 
+
+                            <div class="mb-3" id="selectBranches" style="display: none;">
+
+                                <label>Select Branch</label>
+
+                                <select name="branch_name" class="form-select" id="branch_name">
+
+                                    <option value="">Select Branch</option>
+                                    <option value="AJC">AJC</option>
+                                    <option value="OPO">OPO</option>
+
+                    
+                                </select>
+
+                            </div>
+
+
                             </div>
 
                             <div class="modal-footer">
@@ -386,6 +408,18 @@
 
                                         </select>
 
+                                    </div>
+
+                                    <div class="mb-3" id="editBranches" style="display: none;">
+
+                                        <label>Select Branch</label>
+
+                                        <select name="branch_name" class="form-select" id="edit_branch_name">
+
+                                            <option value="">Select Branch</option>
+                                            <option value="AJC">AJC</option>
+                                            <option value="OPO">OPO</option>
+                                        </select>
                                     </div>
 
                                 </div>
@@ -537,29 +571,6 @@
         });
 
 
-
-        // $('.edit-user-btn').on('click', function(){
-
-        //     const id = $(this).data('id');
-
-
-
-        //     $('#editUserId').val(id);
-
-        //     $('#editUserName').val($(this).data('name'));
-
-        //     $('#editUserEmail').val($(this).data('email'));
-
-        //     $('#editUserRole').val($(this).data('role'));
-
-
-
-        //     $('#editUserModal').modal('show');
-
-
-
-        // });
-
         $('.edit-user-btn').on('click', function () {
 
             const id = $(this).data('id');
@@ -589,6 +600,23 @@
                 $('#editTeamId').val('');
 
                 $('#editTeamId').parent().hide();
+
+            }
+
+
+            // Set team if role is Member
+
+            if ($(this).data('role') === 'Receptionist') {
+
+                $('#edit_branch_name').val($(this).data('branch-name'));
+
+                $('#edit_branch_name').parent().show();
+
+            } else {
+
+                $('#edit_branch_name').val('');
+
+                $('#edit_branch_name').parent().hide();
 
             }
 
@@ -688,8 +716,38 @@
 
         });
 
+        
+        $('#userRole').on('change', function () {
 
+            const role = $(this).val();
 
+            if (role === 'Receptionist') {
+
+                $('#selectBranches').slideDown();
+
+            } else {
+
+                $('#selectBranches').slideUp();
+
+                $('#selectBranches select').val('');
+
+            }
+
+        });
+
+        $('#editUserRole').on('change', function () {
+
+            if ($(this).val() === 'Receptionist') {
+
+                $('#edit_branch_name').parent().show();
+
+            } else {
+
+                $('#edit_branch_name').parent().hide().find('select').val('');
+
+            }
+
+        });
 
 
     });

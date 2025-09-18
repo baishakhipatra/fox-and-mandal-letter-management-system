@@ -72,7 +72,7 @@ class DeliveryManagementController extends Controller
             'delivered_to_user_id.exists' => 'The selected member does not exist.',
             'signature_data.required' => 'Signature is required.',
         ]);
-
+        // dd($request->all());
         try {
             $letter = Letter::findOrFail($request->letter_id);
 
@@ -80,8 +80,16 @@ class DeliveryManagementController extends Controller
             $base64Image = Str::after($signatureData, 'data:image/png;base64,');
             $decodedImage = base64_decode($base64Image);
 
-            $imageName = 'signatures/' . Str::uuid() . '.png'; 
-            Storage::disk('public')->put($imageName, $decodedImage);
+            //$imageName = 'signatures/' . Str::uuid() . '.png'; 
+            //Storage::disk('public')->put($imageName, $decodedImage);
+            if ($request->signature_data) {
+                $image = $request->signature_data; // e.g. data:image/png;base64,iVBORw0...
+                $image = str_replace('data:image/png;base64,', '', $image);
+                $image = str_replace(' ', '+', $image);
+                $filename = time().'_'.uniqid().'.png';
+                \File::put(public_path('storage/signatures/'.$filename), base64_decode($image));
+                // $letter['document_image'] = $filename;
+            }
 
          
             $letter->status = 'Delivered';
@@ -90,7 +98,7 @@ class DeliveryManagementController extends Controller
             Delivery::create([
                 'letter_id' => $letter->id,
                 'delivered_to_user_id' => $request->delivered_to_user_id,
-                'signature_image_path' => Storage::url($imageName), 
+                'signature_image_path' => '/storage/signatures/'.$filename, 
                 'delivered_at' => Carbon::now(),
             ]);
 
@@ -105,14 +113,14 @@ class DeliveryManagementController extends Controller
     public function downloadReport($id){
         $letter = Letter::with('delivery.deliveredToUser.team')->findOrFail($id);
         $pdf = Pdf::loadView('admin.delivery-management.pdf', compact('letter'));
-        return $pdf->download("letter-report-{$letter->letter_id}.pdf");
+        return $pdf->stream("letter-report-{$letter->letter_id}.pdf");
     }
 
     public function deliveryReportPdf($id)
     {
         $letter = Letter::with('delivery.deliveredToUser.team')->findOrFail($id);
         $pdf = Pdf::loadView('admin.delivery-management.delivery_report', compact('letter'));
-        return $pdf->download("delivery-confirmation-{$letter->letter_id}.pdf");
+        return $pdf->stream("delivery-confirmation-{$letter->letter_id}.pdf");
     }
 
     public function getTeamMembers($teamId)

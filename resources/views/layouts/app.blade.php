@@ -108,7 +108,14 @@
                 <div class="col-auto ms-auto">
                     <div class="dropdown">
                         <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                           {{ ucwords(Auth::user()->name) }} ({{ ucwords(Auth::user()->role) }})
+                            
+                           {{ ucwords(Auth::user()->name) }}
+                           
+                        @if(Auth::user()->role == 'Receptionist')
+                            ({{ ucwords(Auth::user()->role) }} - {{ Auth::user()->branch_name }})
+                        @else
+                            ({{ ucwords(Auth::user()->role) }})
+                        @endif
                         </button>
                         <ul class="dropdown-menu test" aria-labelledby="dropdownMenuButton1">
                             <li><a class="dropdown-item" href="{{route('profile.edit')}}">Profile</a></li>

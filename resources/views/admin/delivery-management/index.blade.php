@@ -122,6 +122,127 @@
 
                                         {{-- View Modal --}}
 
+                                        {{-- <div class="modal fade" id="letterViewModal-{{ $letter->id }}" tabindex="-1" aria-labelledby="letterModalLabel-{{ $letter->id }}" aria-hidden="true">
+
+                                            <div class="modal-dialog modal-dialog-centered modal-lg">
+
+                                                <div class="modal-content p-4">
+
+                                                    <div class="d-flex justify-content-between align-items-center mb-3">
+
+                                                        <h5 class="modal-title fw-bold" id="letterModalLabel-{{ $letter->id }}">Letter Details</h5>
+
+                                                        <a href="{{ route('admin.delivery.download', $letter->id) }}" class="btn btn-outline-dark btn-sm" target="_blank">
+
+                                                            <i class="fa fa-download"></i> Download Report
+
+                                                        </a>
+
+                                                    </div>
+
+
+
+                                                    <div class="row">
+
+                                                        <div class="col-md-6 mb-2"><strong>ID:</strong> {{ $letter->letter_id }}</div>
+
+                                                        <div class="col-md-6 mb-2 text-end">
+
+                                                            <strong>Status:</strong>
+
+                                                            <span class="badge {{ $letter->status == 'Delivered' ? 'bg-dark' : 'bg-warning text-dark' }}">
+
+                                                                {{ $letter->status }}
+
+                                                            </span>
+
+                                                        </div>
+
+                                                    </div>
+
+
+
+                                                    <hr>
+
+
+
+                                                    <div class="row">
+
+                                                        <div class="col-md-6 mb-2"><strong>Received From:</strong> {{ ucwords($letter->received_from) }}</div>
+
+                                                        <div class="col-md-6 mb-2"><strong>Document Name:</strong> {{ ucwords($letter->subject ?? 'N/A') }}</div>
+
+                                                        <div class="col-md-6 mb-2"><strong>Send To:</strong>
+
+                                                            @php
+
+                                                                $sendTo = $letter->send_to;
+
+                                                                $sendToName = '';
+
+
+
+                                                                if(Str::startsWith($sendTo, 'member_')) {
+
+                                                                    $memberId = Str::after($sendTo, 'member_');
+
+                                                                    $member = \App\Models\User::find($memberId);
+
+                                                                    $sendToName = $member ? ucwords($member->name) . ' (Member)' : 'Unknown Member';
+
+                                                                } elseif(Str::startsWith($sendTo, 'team_')) {
+
+                                                                    $teamId = Str::after($sendTo, 'team_');
+
+                                                                    $team = \App\Models\Team::find($teamId);
+
+                                                                    $sendToName = $team ? ucwords($team->name)  : 'Unknown Team';
+
+                                                                }
+
+                                                            @endphp
+
+
+
+                                                            {{ $sendToName }} 
+
+                                                        </div>
+
+                                                        <div class="col-md-6 mb-2"><strong>Handed Over By:</strong> {{ ucwords(optional($letter->handedOverByUser)->name ?? 'Unassigned') }}</div>
+
+                                                        <div class="col-md-6 mb-2"><strong>Reference No:</strong> {{ $letter->document_reference_no ?? 'N/A' }}</div>
+
+                                                        <div class="col-md-6 mb-2"><strong>Document Date:</strong> {{ \Carbon\Carbon::parse($letter->created_at)->format('m/d/Y') }}</div>
+
+                                                        <div class="col-md-6 mb-2"><strong>Delivered Date:</strong>
+
+                                                            {{ $letter->delivery ? \Carbon\Carbon::parse($letter->delivery->delivered_at)->format('m/d/Y') : 'Not Delivered' }}
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    @if ($letter->status === 'Delivered' && $letter->delivery && $letter->delivery->signature_image_path)
+
+                                                        <hr>
+
+                                                        <div class="text-center">
+
+                                                            <h6 class="fw-bold mb-2">Signature</h6>
+
+                                                            <img src="{{ asset($letter->delivery->signature_image_path) }}" alt="Signature" class="img-fluid border rounded shadow-sm" style="max-width: 300px;">
+
+
+                                                        </div>
+
+                                                    @endif
+
+                                                </div>
+
+                                            </div>
+
+                                        </div> --}}
+
                                         <div class="modal fade" id="letterViewModal-{{ $letter->id }}" tabindex="-1" aria-labelledby="letterModalLabel-{{ $letter->id }}" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered modal-lg">
                                                 <div class="modal-content p-4 rounded-3 shadow-sm">
@@ -184,7 +305,7 @@
                                                         <hr>
                                                         <div class="text-center">
                                                             <h6 class="fw-bold mb-2">Signature</h6>
-                                                            <img src="{{ asset($letter->delivery->signature_image_path) }}" alt="Signature" class="img-fluid border rounded shadow-sm" style="max-width: 300px;">
+                                                            <img src="{{ asset('public/'.$letter->delivery->signature_image_path) }}" alt="Signature" class="img-fluid border rounded shadow-sm" style="max-width: 300px;">
                                                         </div>
                                                     @endif
 
@@ -1022,7 +1143,7 @@
                                                 <hr>
                                                 <div class="text-center">
                                                     <h6 class="fw-bold mb-2">Signature</h6>
-                                                    <img src="{{ asset($letter->delivery->signature_image_path) }}" alt="Signature" class="img-fluid border rounded shadow-sm" style="max-width: 300px;">
+                                                    <img src="{{ asset('public/'.$letter->delivery->signature_image_path) }}" alt="Signature" class="img-fluid border rounded shadow-sm" style="max-width: 300px;">
                                                 </div>
                                             @endif
 

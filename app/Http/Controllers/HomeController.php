@@ -36,14 +36,15 @@ class HomeController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
 
-    public function index(Request $request)
+     public function index(Request $request)
     {
         $user = Auth::user();
-
         if ($user->role === 'Member') {
+            $team_id = $user->team->value('id');
             $memberKey = 'member_' . $user->id;
+            $team_memberKey = 'team_' . $team_id;
 
-            $letterQuery = Letter::where('send_to', $memberKey);
+            $letterQuery = Letter::whereIn('send_to', [$memberKey,$team_memberKey]);
 
             if ($request->filled('status')) {
                 $letterQuery->where('status', $request->status);
@@ -51,8 +52,8 @@ class HomeController extends Controller
 
             $letters = $letterQuery->orderBy('created_at', 'desc')->get();
 
-            $total = Letter::where('send_to', $memberKey)->count();
-            $delivered = Letter::where('send_to', $memberKey)->where('status', 'Delivered')->count();
+            $total = Letter::whereIn('send_to', [$memberKey, $team_memberKey])->count();
+            $delivered = Letter::whereIn('send_to', [$memberKey, $team_memberKey])->where('status', 'Delivered')->count();
             $pending = $total - $delivered;
 
             return view('admin.member.dashboard', [
@@ -62,33 +63,32 @@ class HomeController extends Controller
                 'pending' => $pending,
             ]);
         }
-
-        // if (in_array($user->role, ['Receptionist', 'Peon'])) {
-        //     $name = $user->name;
-
-        //     $totalLetters = Letter::where('handed_over_by', $name)->count();
-        //     $totalDelivered = Letter::where('handed_over_by', $name)->where('status', 'Delivered')->count();
-        //     $todayLetters = Letter::where('handed_over_by', $name)
-        //                         ->whereDate('document_date', Carbon::today())->count();
-
-        //     return view('home', [
-        //         'todayLetters' => $todayLetters,
-        //         'totalLetters' => $totalLetters,
-        //         'totalDelivered' => $totalDelivered,
-        //     ]);
-        // }
-
+        
         $user = Auth::user();
 
         if (in_array($user->role, ['Receptionist', 'Peon'])) {
             $userId = $user->id;
-
-            $totalLetters = Letter::where('handed_over_by', $userId)->count();
-            $totalDelivered = Letter::where('handed_over_by', $userId)->where('status', 'Delivered')->count();
-            $todayLetters = Letter::where('handed_over_by', $userId)
-                                ->whereDate('created_at', Carbon::today())
-                                ->count();
-
+        
+            if ($user->role === 'Receptionist') {
+                // Receptionist sees letters they created
+                $totalLetters = Letter::where('created_by', $userId)->count();
+                $totalDelivered = Letter::where('created_by', $userId)
+                                        ->where('status', 'Delivered')
+                                        ->count();
+                $todayLetters = Letter::where('created_by', $userId)
+                                      ->whereDate('created_at', Carbon::today())
+                                      ->count();
+            } elseif ($user->role === 'Peon') {
+                // Peon sees letters handed over to them
+                $totalLetters = Letter::where('handed_over_by', $userId)->count();
+                $totalDelivered = Letter::where('handed_over_by', $userId)
+                                        ->where('status', 'Delivered')
+                                        ->count();
+                $todayLetters = Letter::where('handed_over_by', $userId)
+                                      ->whereDate('created_at', Carbon::today())
+                                      ->count();
+            }
+        
             return view('home', [
                 'todayLetters' => $todayLetters,
                 'totalLetters' => $totalLetters,
@@ -96,6 +96,7 @@ class HomeController extends Controller
                 'systemUsers' => 0,
             ]);
         }
+
 
         // For Admin
         $todayLetters = Letter::whereDate('created_at', Carbon::today())->count();

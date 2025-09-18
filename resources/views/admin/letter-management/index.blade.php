@@ -216,7 +216,7 @@
                                                 data-handed_over_by="{{ ucwords(optional($letter->handedOverByUser)->name) ?? '-' }}"
                                                 data-created_by="{{ ucwords(optional($letter->createdBy)->name) ?? '-' }}"
                                                 data-created_at="{{ $letter->created_at }}"
-                                                data-document_image="{{ $letter->document_image ? asset('uploads/letters/' . $letter->document_image) : '' }}"
+                                                data-document_image="{{ asset($letter->document_image) }}"
                                                 data-bs-toggle="tooltip"
                                                 title="View">
                                                 <i class="fa fa-eye"></i>
@@ -232,7 +232,7 @@
                                                 data-document_date="{{ $letter->document_date }}"
                                                 data-subject="{{ $letter->subject }}"
                                                 data-handed_over_by="{{ $letter->handed_over_by }}"
-                                                data-document_image="{{ $letter->document_image }}"
+                                                data-document_image="{{ asset($letter->document_image) }}"
                                                 data-bs-toggle="tooltip"
                                                 data-bs-title="Edit">
                                                 <i class="fa fa-pen"></i>
@@ -434,11 +434,11 @@
 
                                                 @foreach($users as $user)
 
-                                                    @if(!(Auth::user()->role === 'Receptionist' && Auth::id() === $user->id))
+                                                    {{-- @if(!(Auth::user()->role === 'Receptionist' && Auth::id() === $user->id)) --}}
 
-                                                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->role }})</option>
+                                                        <option value="{{ $user->id }}">{{ ucwords($user->name) }} ({{ $user->role }})</option>
 
-                                                    @endif
+                                                    {{-- @endif --}}
 
                                                 @endforeach
 
@@ -602,11 +602,11 @@
                                                 <option value="" disabled selected>Select person</option>
                                                 @foreach($users as $user)
 
-                                                    @if(!(Auth::user()->role === 'Receptionist' && Auth::id() === $user->id))
+                                                    {{-- @if(!(Auth::user()->role === 'Receptionist' && Auth::id() === $user->id)) --}}
 
                                                         <option value="{{ $user->id }}">{{ ucwords($user->name) }} ({{ ucwords($user->role) }})</option>
 
-                                                    @endif
+                                                    {{-- @endif --}}
 
                                                 @endforeach
 
@@ -774,12 +774,11 @@
 
         if (filename) {
 
+            const isFullUrl = filename.startsWith('http');
             const extension = filename.split('.').pop().toLowerCase();
-
-            const baseUrl = "{{ asset('uploads/letters') }}";
-            const fileUrl = `${baseUrl}/${filename}`;
-
-
+        
+            const baseUrl = "{{ asset('public/uploads/letters') }}";
+            const fileUrl = isFullUrl ? filename : `${baseUrl}/${filename}`;
 
 
             if (extension === 'pdf') {

@@ -23,8 +23,6 @@ class LetterManagementController extends Controller
         }
 
 
-
-
         if ($request->filled('from_date') && $request->filled('to_date')) {
             $from = Carbon::parse($request->from_date)->startOfDay();
             $to = Carbon::parse($request->to_date)->endOfDay();
@@ -70,18 +68,35 @@ class LetterManagementController extends Controller
             $file = $request->file('document_image');
             $filename = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
             $file->move(public_path('uploads/letters'), $filename);
-            $data['document_image'] = $filename;
+            $path = 'public/uploads/letters/'.$filename;
+            $data['document_image'] = $path;
         }
         $data['created_by'] = Auth::id();
+        
+        $branch = Auth::user()->branch_name ?? null;
+
+        $year = date('y');
+
+        $lastLetter = Letter::where('letter_id', 'like', $branch . '-' . $year . '-%')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        if ($lastLetter) {
+            $lastSeq = (int) substr($lastLetter->letter_id, -4);
+            $nextSeq = $lastSeq + 1;
+        } else {
+            $nextSeq = 1;
+        }
+
+        $sequence = str_pad($nextSeq, 4, '0', STR_PAD_LEFT);
+
+        $data['letter_id'] = $branch . '-' . $year . '-' . $sequence;
+
         $letter = Letter::create($data);
 
         if (!$letter) {
             return response()->json(['status' => false, 'message' => 'Failed to add letter.']);
         }
-      
-        $letter->letter_id = 'LT' . str_pad($letter->id, 6, '0', STR_PAD_LEFT);
-        $letter->save();
-
         return response()->json(['status' => true, 'message' => 'Letter Added Successfully']);
     }
 
@@ -113,7 +128,8 @@ class LetterManagementController extends Controller
                 $file = $request->file('document_image');
                 $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('uploads/letters'), $fileName);
-                $data['document_image'] = $fileName;
+                $path = 'public/uploads/letters/'.$fileName;
+                $data['document_image'] = $path;
             }
 
             $letter->update($data);

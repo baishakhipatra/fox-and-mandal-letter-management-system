@@ -29,17 +29,6 @@
 
     <div class="line"><span class="label">Letter ID:</span> {{ $letter->letter_id }}</div>
     <div class="line"><span class="label">Received From:</span> {{ ucwords($letter->received_from) }}</div>
-    {{-- <div class="line">
-        <span class="label">Send To (Member/Team):</span>
-        @if(optional($letter->delivery)?->deliveredToUser)
-            {{ optional($letter->delivery->deliveredToUser)->name }}
-            @if(optional($letter->delivery->deliveredToUser->team)->isNotEmpty())
-                ({{ optional($letter->delivery->deliveredToUser->team)->pluck('name')->join(', ') }})
-            @endif
-        @else
-            {{ $letter->send_to ?? 'Not specified' }}
-        @endif
-    </div> --}}
     <div class="line">
         <span class="label">Send To (Member/Team):</span>
         @php
@@ -68,6 +57,14 @@
     <div class="line"><span class="label">Created:</span> {{ \Carbon\Carbon::parse($letter->created_at)->format('d-m-Y') }}</div>
     <div class="line"><span class="label">Status:</span> {{ ucfirst($letter->status) }}</div>
     <div class="line"><span class="label">Generated on:</span> {{ now()->format('d-m-Y') }}</div>
+    <div class="line">
+        <span class="label">Signature:</span>
+            @if($letter->delivery?->signature_image_path)
+                <img src="{{ public_path($letter->delivery->signature_image_path) }}" alt="Signature" class="img-fluid border rounded shadow-sm" style="max-width: 150px; max-height: 80px;">
+            @else
+                No signature available
+            @endif
+    </div>
 
 </body>
 </html>

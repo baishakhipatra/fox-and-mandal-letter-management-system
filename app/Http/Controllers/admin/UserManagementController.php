@@ -28,6 +28,7 @@ class UserManagementController extends Controller
             'password' => 'required|min:6',
             'role' => 'required',
             'team_id' => 'nullable|exists:teams,id',
+            'branch_name' => 'nullable|string',
         ]);
 
         $user = User::create([
@@ -36,8 +37,10 @@ class UserManagementController extends Controller
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'status' => 1,
+            'branch_name' => $request->role === 'Receptionist' ? $request->branch_name : null,
         ]);
 
+       // dd($user);
 
         if ($request->role === 'Member' && $request->filled('team_id')) {
             DB::table('team_members')->insert([
@@ -65,12 +68,14 @@ class UserManagementController extends Controller
             'email' => 'required|email|unique:users,email,' . $id,
             'role' => 'required|string',
             'team_id' => 'nullable|exists:teams,id',
+            'branch_name' => 'nullable|string',
         ]);
 
         $user->update([
             'name'  => $request->name,
             'email' => $request->email,
             'role'  => $request->role,
+            'branch_name' => $request->role === 'Receptionist' ? $request->branch_name : null,
         ]);
 
        
@@ -81,7 +86,6 @@ class UserManagementController extends Controller
                 ['team_id' => $request->team_id, 'updated_at' => now(), 'created_at' => now()]
             );
         } else {
-            
             DB::table('team_members')->where('user_id', $user->id)->delete();
         }
 
@@ -100,6 +104,7 @@ class UserManagementController extends Controller
         }
         return response()->json(['status' => false, 'message' => 'User Not Found']);
     }
+
 
     public function delete($id)
     {

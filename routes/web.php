@@ -284,7 +284,6 @@ Route::middleware(['auth', 'role:Receptionist,super admin'])->group(function (){
     Route::prefix('Report')->group(function (){
         Route::get('/', [ReportController::class, 'index'])->name('admin.report.index');
         Route::get('/export', [ReportController::class, 'reportExport'])->name('admin.report.export');
-        Route::get('/export-letters', [LetterManagementController::class, 'exportLetters'])->name('admin.letter.export');
     });
 });
 
