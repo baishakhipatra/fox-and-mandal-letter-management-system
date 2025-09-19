@@ -14,9 +14,11 @@ class Letter extends Model
     protected $fillable = [
         'created_by',
         'letter_id', 
+        'received_date',
         'received_from', 
         'handed_over_by', 
         'send_to', 
+        'document_type',
         'subject', 
         'document_reference_no', 
         'document_date',

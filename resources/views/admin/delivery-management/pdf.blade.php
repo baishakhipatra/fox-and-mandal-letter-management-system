@@ -33,6 +33,7 @@
     <h2>Letter Report</h2>
 
     <div class="info"><span class="label">Letter ID:</span> {{ $letter->letter_id }}</div>
+    <div class="info"><span class="label">Matter Code:</span> {{ $letter->matter_code ?? 'N/A' }}</div>
     <div class="info"><span class="label">Status:</span> {{ ucfirst($letter->status) }}</div>
     <div class="info"><span class="label">Received From:</span> {{ ucwords($letter->received_from) }}</div>
     <div class="info"><span class="label">Subject/Document Name:</span> {{ ucwords($letter->subject) ?? 'N/A' }}</div>

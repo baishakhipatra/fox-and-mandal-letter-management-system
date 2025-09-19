@@ -69,6 +69,7 @@ Auth::routes();
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::post('/update-matter-code/{letter}', [App\Http\Controllers\HomeController::class, 'updateMatterCode'])->name('updateMatterCode');
 //Route::group(['middleware' => ['role:super-admin|lms-admin']], function() {
 // Route::group(['middleware' => ['auth']], function() {
 

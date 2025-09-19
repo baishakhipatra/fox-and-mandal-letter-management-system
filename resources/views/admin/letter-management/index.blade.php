@@ -19,11 +19,12 @@
                         <h3 class="mb-0">Letter Management</h3>
 
                         <div class="d-flex flex-wrap gap-2 align-items-center">
-
-                            <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#addLetterModal">+ Add Letter</button>
-
+                            @auth
+                                @if(auth()->user()->role === 'Receptionist')
+                                    <button class="btn btn-dark btn-sm" data-bs-toggle="modal" data-bs-target="#addLetterModal">+ Add Letter</button>
+                                @endif
+                            @endauth
                             <a href="{{ route('admin.letter.export', request()->query()) }}" class="btn btn-outline-secondary btn-sm">Export Letters</a>
-
                         </div>
 
                     </div>
@@ -110,11 +111,15 @@
 
                                     <th>ID</th>
 
+                                    <th>Received Date</th>
+
                                     <th>Received From</th>
 
                                     <th>Handed Over By</th>
 
                                     <th>Send To (Member/Team)</th>
+
+                                    <th>Document Type</th>
 
                                     <th>Subject/Document Name</th>
 
@@ -142,11 +147,13 @@
 
                                         <td>{{ $letter->letter_id }}</td>
 
+                                        <td>{{ $letter->received_date ? \Carbon\Carbon::parse($letter->received_date)->format('d-m-Y') : '' }}</td>
+
                                         <td>{{ ucwords($letter->received_from) }}</td>
 
                                         <td>{{ ucwords($letter->handedOverByUser->name ?? 'N\A') }}</td>
 
-                                        {{-- <td>{{ $letter->send_to }}</td> --}}
+                                       
 
                                         <td>
 
@@ -184,6 +191,8 @@
 
                                         </td>
 
+                                        <td>{{ucwords($letter->document_type)}}</td>
+
                                         <td>{{ ucwords($letter->subject) }}</td>
 
                                         <td>{{ $letter->document_reference_no }}</td>
@@ -208,6 +217,7 @@
                                             <!-- View Button -->
                                             <button class="btn btn-sm btn-outline-info view-letter-btn"
                                                 data-id="{{ $letter->id }}"
+                                                data-received_date="{{ $letter->received_date }}"
                                                 data-received_from="{{ ucwords($letter->received_from) }}"
                                                 data-send_to="{{ ucwords($sendToName) }}"
                                                 data-document_reference_no="{{ $letter->document_reference_no }}"
@@ -226,8 +236,10 @@
                                             @if($letter->status !== 'Delivered')
                                             <button class="btn btn-sm btn-outline-primary edit-letter-btn"
                                                 data-id="{{ $letter->id }}"
+                                                data-received_date="{{ $letter->received_date }}"
                                                 data-received_from="{{ $letter->received_from }}"
                                                 data-send_to="{{ $letter->send_to }}"
+                                                data-document_type="{{ $letter->document_type }}" 
                                                 data-document_reference_no="{{ $letter->document_reference_no }}"
                                                 data-document_date="{{ $letter->document_date }}"
                                                 data-subject="{{ $letter->subject }}"
@@ -272,8 +284,10 @@
                             </div>
                             <div class="modal-body">
                                 <table class="table table-bordered">
+                                    <tr><th>Received Date</th><td id="view_received_date"></td></tr>
                                     <tr><th>Received From</th><td id="view_received_from"></td></tr>
                                     <tr><th>Send To</th><td id="view_send_to"></td></tr>
+                                    <tr><th>Document Type</th><td id="view_document_type"></td></tr>
                                     <tr><th>Document Ref No</th><td id="view_document_reference_no"></td></tr>
                                     <tr><th>Document Date</th><td id="view_document_date"></td></tr>
                                     <tr><th>Subject/Document No.</th><td id="view_subject"></td></tr>
@@ -314,11 +328,24 @@
 
                                 </div>
 
+                                <div class="col-md-6">
+                                    <label class="form-label">Letter ID</label>
+                                    <input type="text" name="letter_id" id="letterId" class="form-control" readonly>
+                                </div>
 
 
                                 <div class="modal-body">
 
                                     <div class="row g-3">
+
+                                        
+                                        <div class="col-md-6">
+
+                                            <label class="form-label">Received Date</label>
+
+                                            <input type="date" name="received_date" class="form-control" placeholder="Enter Received Date" value="{{old('received_date', date('Y-m-d'))}}">
+
+                                        </div>
 
                                         
 
@@ -388,7 +415,15 @@
 
                                         </div>
 
-
+                                        <div class="col-md-6">
+                                            <label class="form-label">Document Type</label>
+                                            <select name="document_type" class="form-control">
+                                                <option value="">-- Select Document Type --</option>
+                                                <option value="Letter">Letter</option>
+                                                <option value="Memo">Memo</option>
+                                                <option value="Notice">Notice</option>
+                                            </select>
+                                        </div>
 
                                         <div class="col-md-6">
 
@@ -412,11 +447,11 @@
 
                                         
 
-                                        <div class="col-md-6">
+                                        <div class="col-md-12">
 
                                             <label class="form-label">Subject/Document Name</label>
 
-                                            <input type="text" name="subject" class="form-control" placeholder="Enter subject or document name">
+                                            <textarea name="subject" class="form-control" placeholder="Enter subject or document name"></textarea>
 
                                         </div>
 
@@ -508,6 +543,14 @@
 
                                         <div class="col-md-6">
 
+                                            <label class="form-label">Received Date</label>
+
+                                            <input type="date" name="received_date" id="editReceivedDate" class="form-control" placeholder="Enter Received Date" value="{{ old('received_date', $letter->received_date ?? '') }}">
+
+                                        </div>
+
+                                        <div class="col-md-6">
+
                                             <label>Received From</label>
 
                                             <input type="text" name="received_from" id="editReceivedFrom" class="form-control" placeholder="Enter senders name and address">
@@ -565,7 +608,15 @@
 
                                         </div>
 
-
+                                        <div class="col-md-6">
+                                            <label class="form-label">Document Type</label>
+                                            <select name="document_type" id="editDocumentType" class="form-control">
+                                                <option value="">-- Select Document Type --</option>
+                                                <option value="Letter" {{ old('document_type', $letter->document_type ?? '') == 'Letter' ? 'selected' : '' }}>Letter</option>
+                                                <option value="Memo" {{ old('document_type', $letter->document_type ?? '') == 'Memo' ? 'selected' : '' }}>Memo</option>
+                                                <option value="Notice" {{ old('document_type', $letter->document_type ?? '') == 'Notice' ? 'selected' : '' }}>Notice</option>
+                                            </select>
+                                        </div>
 
 
 
@@ -585,11 +636,11 @@
 
                                         </div>
 
-                                        <div class="col-md-6">
+                                        <div class="col-md-10">
 
                                             <label>Subject/Document Name</label>
 
-                                            <input type="text" name="subject" id="editSubject" class="form-control" placeholder="Enter subject or document name">
+                                            <textarea name="subject" id="editSubject" class="form-control" placeholder="Enter subject or document name"></textarea>
 
                                         </div>
 
@@ -661,6 +712,7 @@
 @section('script')
 
 <script>
+    
 
     $('#letterForm').on('submit', function (e) {
 
@@ -726,6 +778,8 @@
 
         $('#editLetterId').val(id);
 
+        $('#editReceivedDate').val($(this).data('received_date'));
+
         $('#editReceivedFrom').val($(this).data('received_from'));
 
        // $('#editSendTo').val($(this).data('send_to'));
@@ -743,6 +797,17 @@
         } else {
 
             $('#editSendTo').val('').trigger('change');
+
+        }
+
+        const documentType = $(this).data('document_type');
+        if (documentType) {
+
+            $('#editDocumentType').val(documentType).trigger('change');
+
+        } else {
+
+            $('#editDocumentType').val('').trigger('change');
 
         }
 
@@ -920,8 +985,10 @@
     });
 
     $(document).on('click', '.view-letter-btn', function () {
+        $('#view_received_date').text($(this).data('received_date'));
         $('#view_received_from').text($(this).data('received_from'));
         $('#view_send_to').text($(this).data('send_to'));
+        $('#view_document_type').text($(this).data('document_type'));
         $('#view_document_reference_no').text($(this).data('document_reference_no'));
         $('#view_document_date').text($(this).data('document_date'));
         $('#view_subject').text($(this).data('subject'));

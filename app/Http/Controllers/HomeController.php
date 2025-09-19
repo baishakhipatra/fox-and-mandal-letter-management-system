@@ -36,7 +36,7 @@ class HomeController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
 
-     public function index(Request $request)
+    public function index(Request $request)
     {
         $user = Auth::user();
         if ($user->role === 'Member') {
@@ -50,7 +50,33 @@ class HomeController extends Controller
                 $letterQuery->where('status', $request->status);
             }
 
-            $letters = $letterQuery->orderBy('created_at', 'desc')->get();
+            if ($request->filled('received_date_range')) {
+                [$start, $end] = explode(' to ', $request->received_date_range);
+                $letterQuery->whereBetween('received_date', [$start, $end]);
+            }
+
+           
+            if ($request->filled('delivery_date_range')) {
+                [$start, $end] = explode(' to ', $request->delivery_date_range);
+
+                $letterQuery->whereHas('delivery', function ($q) use ($start, $end) {
+                    $q->whereBetween('delivered_at', [$start, $end]);
+                });
+            }
+
+            if ($request->filled('subject')) {
+                $letterQuery->where('subject', 'like', '%' . $request->subject . '%');
+            }
+
+            if ($request->filled('document_type')) {
+                $letterQuery->where('document_type', $request->document_type);
+            }
+
+            if ($request->filled('status')) {
+                $letterQuery->where('status', $request->status);
+            }
+
+            $letters = $letterQuery->orderBy('created_at', 'desc')->paginate(10);
 
             $total = Letter::whereIn('send_to', [$memberKey, $team_memberKey])->count();
             $delivered = Letter::whereIn('send_to', [$memberKey, $team_memberKey])->where('status', 'Delivered')->count();
@@ -112,5 +138,16 @@ class HomeController extends Controller
             'systemUsers' => $systemUsers,
             'totalTeam' => $totalTeam
         ]);
+    }
+
+    public function updateMatterCode(Request $request,Letter $letter){
+        $request->validate([
+            'matter_code' => 'required|string|max:255',
+        ]);
+
+        $letter->matter_code = $request->matter_code;
+        $letter->save();
+
+        return redirect()->back()->with('success', 'Matter Code updated successfully.');
     }
 }

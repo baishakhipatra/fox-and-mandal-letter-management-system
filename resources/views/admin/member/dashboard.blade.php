@@ -49,27 +49,71 @@
                 <div class="card mt-3">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Letter List</h5>
-                        {{-- <a href="{{ route('home', ['status' => 'Delivered']) }}" class="btn btn-outline-dark btn-sm">
-                            Show Only Delivered
-                        </a> --}}
-                        @if(request('status') === 'Delivered')
-                            <a href="{{ route('home') }}" class="btn btn-outline-secondary">
-                                Show All
-                            </a>
-                        @else
-                            <a href="{{ route('home', ['status' => 'Delivered']) }}" class="btn btn-outline-dark">
-                                Show Only Delivered
-                            </a>
-                        @endif
+                    </div>
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <form method="GET" action="{{ route('home') }}">
+                                <div class="row g-2 align-items-end">
+
+                                    <div class="col-md-4">
+                                        <label class="form-label">Received Date Range</label>
+                                        <input type="text" name="received_date_range" class="form-control" id="receivedDateRange" 
+                                        placeholder="Received Date Range" value="{{ request('received_date_range') }}" autocomplete="off">
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <label class="form-label">Delivery Date Range</label>
+                                        <input type="text" name="delivery_date_range" class="form-control" id="deliveryDateRange" 
+                                        placeholder="Delivery Date Range"   value="{{ request('delivery_date_range') }}" autocomplete="off">
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label">Received From</label>
+                                        <input type="text" name="received_from" class="form-control" placeholder="Sender name" value="{{ request('received_from') }}">
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label">Subject</label>
+                                        <input type="text" name="subject" class="form-control" placeholder="Subject" value="{{ request('subject') }}">
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label">Document Type</label>
+                                        <select name="document_type" class="form-select">
+                                            <option value="">-- All Types --</option>
+                                            <option value="Letter" {{ request('document_type') == 'Letter' ? 'selected' : '' }}>Letter</option>
+                                            <option value="Memo" {{ request('document_type') == 'Memo' ? 'selected' : '' }}>Memo</option>
+                                            <option value="Notice" {{ request('document_type') == 'Notice' ? 'selected' : '' }}>Notice</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label class="form-label">Status</label>
+                                        <select name="status" class="form-select">
+                                            <option value="">-- All --</option>
+                                            <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                                            <option value="Delivered" {{ request('status') == 'Delivered' ? 'selected' : '' }}>Delivered</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-12 text-end mt-2">
+                                        <button type="submit" class="btn btn-dark">Filter</button>
+                                        <a href="{{ route('home') }}" class="btn btn-outline-secondary">Reset</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-bordered mb-0">
                             <thead>
                                 <tr>
                                     <th>Letter ID</th>
+                                    <th>Received Date</th>
+                                    <th>Received From</th>
                                     <th>Subject/Document Name</th>
+                                    <th>Document Date</th>
                                     <th>Status</th>
-                                    <th>Date</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -77,101 +121,99 @@
                                 @forelse ($letters as $letter)
                                     <tr>
                                         <td>{{ $letter->letter_id }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($letter->received_date)->format('d-m-Y') }}</td>
+                                        <td>{{ ucwords($letter->received_from) }}</td>
                                         <td>{{ ucwords($letter->subject ?? 'N/A') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($letter->document_date)->format('d-m-Y') }}</td>
                                         <td>
                                             <span class="badge {{ $letter->status == 'Delivered' ? 'bg-success' : 'bg-warning text-dark' }}">
                                                 {{ $letter->status }}
                                             </span>
                                         </td>
-                                        <td>{{ \Carbon\Carbon::parse($letter->created_at)->format('d-m-Y') }}</td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#letterViewModal_{{ $letter->id }}">
-                                                <i class="fa fa-eye"></i>
-                                            </button>
-                                            <a href="{{ route('admin.delivery.report', $letter->id) }}" class="btn btn-outline-dark btn-sm" target="_blank">
-                                                <i class="fa fa-download"></i> PDF
+                                            <a href="{{ route('admin.delivery.download', $letter->id) }}" class="btn btn-outline-dark btn-sm" target="_blank">
+                                                <i class="fas fa-shipping-fast"></i>Delivery
                                             </a>
+                                            @if(!empty($letter->document_image))
+                                            <a href="{{ asset($letter->document_image) }}" class="btn btn-outline-dark btn-sm" target="_blank">
+                                                <i class="fa fa-download"></i>Download
+                                            </a>
+                                            @else
+                                                <span class="badge bg-secondary">No Image Available</span>
+                                            @endif
+                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#letterViewModal_{{ $letter->id }}">
+                                                <i class="fas fa-update"></i>Update Matter Code
+                                            </button>
                                         </td>
                                     </tr>
                                     <div class="modal fade" id="letterViewModal_{{ $letter->id }}" tabindex="-1" aria-labelledby="letterModalLabel_{{ $letter->id }}" aria-hidden="true">
                                         <div class="modal-dialog modal-dialog-centered modal-lg">
                                             <div class="modal-content p-4">
-                                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                                    <h5 class="modal-title fw-bold" id="letterModalLabel_{{ $letter->id }}">Letter Details</h5>
-                                                    <a href="{{ route('admin.delivery.download', $letter->id) }}" class="btn btn-outline-dark btn-sm" target="_blank">
-                                                        <i class="fa fa-download"></i> Download Report
-                                                    </a>
-                                                </div>
-
-                                                <div class="row">
-                                                    <div class="col-md-6 mb-2"><strong>ID:</strong> {{ $letter->letter_id }}</div>
-                                                    <div class="col-md-6 mb-2 text-end">
-                                                        <strong>Status:</strong>
-                                                        <span class="badge {{ $letter->status == 'Delivered' ? 'bg-dark' : 'bg-warning text-dark' }}">
-                                                            {{ $letter->status }}
-                                                        </span>
+                                                <form action="{{ route('updateMatterCode', $letter->id) }}" method="POST">
+                                                    @csrf
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-2"><strong>ID:</strong> {{ $letter->letter_id }}</div>
+                                                        <div class="col-md-6 mb-2">
+                                                            <label class="form-label">Matter Code</label>
+                                                            <input type="text" name="matter_code" class="form-control" placeholder="Enter matter code" value="{{ $letter->matter_code }}">
+                                                        </div>
                                                     </div>
-                                                </div>
-
-                                                <hr>
-
-                                                <div class="row">
-                                                    <div class="col-md-6 mb-2"><strong>Received From:</strong> {{ ucwords($letter->received_from) }}</div>
-                                                    <div class="col-md-6 mb-2"><strong>Send To:</strong>
-                                                        @php
-                                                            $sendTo = $letter->send_to;
-                                                            $sendToName = '';
-
-                                                            if(Str::startsWith($sendTo, 'member_')) {
-                                                                $memberId = Str::after($sendTo, 'member_');
-                                                                $member = \App\Models\User::find($memberId);
-                                                                $sendToName = $member ? ucwords($member->name) . ' (Member)' : 'Unknown Member';
-                                                            } elseif(Str::startsWith($sendTo, 'team_')) {
-                                                                $teamId = Str::after($sendTo, 'team_');
-                                                                $team = \App\Models\Team::find($teamId);
-                                                                $sendToName = $team ? ucwords($team->name)  : 'Unknown Team';
-                                                            }
-                                                        @endphp
-
-                                                        {{ $sendToName }} 
+                                                    <div class="text-end mt-3">
+                                                        <button type="submit" class="btn btn-primary btn-sm">Save</button>
                                                     </div>
-                                                    <div class="col-md-6 mb-2"><strong>Document Reference No:</strong> {{ $letter->document_reference_no ?? 'N/A' }}</div>
-                                                    <div class="col-md-6 mb-2"><strong>Document Date:</strong> {{ \Carbon\Carbon::parse($letter->created_at)->format('d-m-y') }}</div>
-                                                    <div class="col-md-6 mb-2"><strong>Subject/Document Name:</strong> {{ ucwords($letter->subject ?? 'N/A') }}</div>
-                                                    <div class="col-md-6 mb-2"><strong>Handed Over By:</strong> {{ ucwords(optional($letter->handedOverByUser)->name ?? 'Unassigned') }}</div>
-                                                    <div class="col-md-6 mb-2"><strong>Delivered Date:</strong>
-                                                        {{ $letter->delivery ? \Carbon\Carbon::parse($letter->delivery->delivered_at)->format('d-m-y') : 'Not Delivered' }}
-                                                    </div>
-                                                    <div class="col-md-6 mb-2">
-                                                        <strong>View Image/PDF:</strong>
-                                                        @if(!empty($letter->document_image))
-                                                            <a href="{{ asset($letter->document_image) }}" target="_blank" class="btn btn-sm btn-outline-info">
-                                                                <i class="fa fa-eye"></i> View
-                                                            </a>
-                                                        @else
-                                                            <span>No Image Available</span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                @if ($letter->status === 'Delivered' && $letter->delivery && $letter->delivery->signature_image_path)
-                                                    <hr>
-                                                    <div class="text-center">
-                                                        <h6 class="fw-bold mb-2">Signature</h6>
-                                                        <img src="{{ asset('public/'.$letter->delivery->signature_image_path) }}" alt="Signature" class="img-fluid border rounded shadow-sm" style="max-width: 300px;">
-                                                    </div>
-                                                @endif
+                                                </form>
                                             </div>
                                         </div>
                                     </div>
                                 @empty
-                                    <tr><td colspan="5" class="text-center">No letters found.</td></tr>
+                                    <tr><td colspan="7" class="text-center">No letters found.</td></tr>
                                 @endforelse
-                                
                             </tbody>
                         </table>
+                        <div class="d-flex justify-content-center mt-3">
+                            {{ $letters->links() }}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 </div>
+@endsection
+
+@section('script')
+    <script>
+        $(function() {
+            // Received Date
+            $('#receivedDateRange').daterangepicker({
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: 'Clear'
+                }
+            });
+
+            $('#receivedDateRange').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' to ' + picker.endDate.format('YYYY-MM-DD'));
+            });
+
+            $('#receivedDateRange').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+            });
+
+            // Delivery Date
+            $('#deliveryDateRange').daterangepicker({
+                autoUpdateInput: false,
+                locale: {
+                    cancelLabel: 'Clear'
+                }
+            });
+
+            $('#deliveryDateRange').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' to ' + picker.endDate.format('YYYY-MM-DD'));
+            });
+
+            $('#deliveryDateRange').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+            });
+        });
+    </script>
 @endsection

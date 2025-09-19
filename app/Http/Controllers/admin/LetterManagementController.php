@@ -40,7 +40,7 @@ class LetterManagementController extends Controller
 
         //dd($lettersQuery->toSql(), $lettersQuery->getBindings());
         $letters = $lettersQuery->paginate(10);
-
+ 
         $members = User::where('role', 'Member')->with('team')->where('status', 1)->get();
         $teams = Team::where('status', 1)->get();
         $users = User::whereIn('role', ['Peon', 'Receptionist'])->where('status', 1)->get();
@@ -53,9 +53,11 @@ class LetterManagementController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'received_date' => 'nullable|date',
             'received_from' => 'nullable|string',
             'handed_over_by' => 'nullable',
             'send_to' => 'nullable|string',
+            'document_type' => 'nullable|string',
             'subject' => 'nullable|string',
             'document_reference_no' => 'nullable|string',
             'document_date' => 'nullable|date',
@@ -99,6 +101,7 @@ class LetterManagementController extends Controller
         }
         return response()->json(['status' => true, 'message' => 'Letter Added Successfully']);
     }
+    
 
 
     public function edit($id)
@@ -112,9 +115,11 @@ class LetterManagementController extends Controller
     {
         $letter = Letter::findOrFail($id);
         $request->validate([
+            'received_date' => 'nullable|date',
             'received_from' => 'nullable|string',
             'handed_over_by' => 'nullable',
             'send_to' => 'nullable|string',
+            'document_type' => 'nullable|string',
             'subject' => 'nullable|string',
             'document_reference_no' => 'nullable|string',
             'document_date' => 'nullable|date',
