@@ -14,7 +14,7 @@ class LetterManagementController extends Controller
 {
     public function index(Request $request)
     {
-        $user = Auth::user(); 
+        $user = Auth::user();
 
         $lettersQuery = Letter::with('handedOverByUser')->orderBy('id', 'desc');
 
@@ -40,13 +40,24 @@ class LetterManagementController extends Controller
 
         //dd($lettersQuery->toSql(), $lettersQuery->getBindings());
         $letters = $lettersQuery->paginate(10);
- 
+
         $members = User::where('role', 'Member')->with('team')->where('status', 1)->get();
         $teams = Team::where('status', 1)->get();
         $users = User::whereIn('role', ['Peon', 'Receptionist'])->where('status', 1)->get();
-        $creators = User::whereIn('role', ['supar admin','Receptionist'])->where('status', 1)->get();
+        $creators = User::whereIn('role', ['supar admin', 'Receptionist'])->where('status', 1)->get();
+        $lastLetter = Letter::orderBy('id', 'DESC')->first();
+        $branchName = Auth::user()->branch_name;
 
-        return view('admin.letter-management.index', compact('letters', 'members', 'users', 'teams', 'creators'));
+        if ($lastLetter && preg_match("/^" . preg_quote($branchName, '/') . "-(\d{2})-(\d+)/", $lastLetter->letter_id, $matches)) {
+            $year   = $matches[1];
+            $number = (int)$matches[2] + 1;
+
+            $newLetterId = $branchName . '-' . $year . '-' . str_pad($number, 4, '0', STR_PAD_LEFT);
+        } else {
+            $year = date('y');
+            $newLetterId = $branchName . '-' . $year . '-0001';
+        }
+        return view('admin.letter-management.index', compact('letters', 'members', 'users', 'teams', 'creators', 'newLetterId'));
     }
 
 
@@ -68,13 +79,13 @@ class LetterManagementController extends Controller
 
         if ($request->document_image) {
             $file = $request->file('document_image');
-            $filename = time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
+            $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
             $file->move(public_path('uploads/letters'), $filename);
-            $path = 'public/uploads/letters/'.$filename;
+            $path = 'public/uploads/letters/' . $filename;
             $data['document_image'] = $path;
         }
         $data['created_by'] = Auth::id();
-        
+
         $branch = Auth::user()->branch_name ?? null;
 
         $year = date('y');
@@ -101,7 +112,7 @@ class LetterManagementController extends Controller
         }
         return response()->json(['status' => true, 'message' => 'Letter Added Successfully']);
     }
-    
+
 
 
     public function edit($id)
@@ -128,28 +139,27 @@ class LetterManagementController extends Controller
 
         try {
             $data = $request->except(['letter_id', '_token']);
-            
+
             if ($request->document_image) {
                 $file = $request->file('document_image');
                 $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path('uploads/letters'), $fileName);
-                $path = 'public/uploads/letters/'.$fileName;
+                $path = 'public/uploads/letters/' . $fileName;
                 $data['document_image'] = $path;
             }
 
             $letter->update($data);
 
             return response()->json(['status' => true, 'message' => 'Letter Updated Successfully']);
-            } catch (\Exception $e) {
-                \Log::error('Letter update failed: ' . $e->getMessage());
-                return response()->json(['status' => false, 'message' => 'Update failed: ' . $e->getMessage()], 500);
-                
+        } catch (\Exception $e) {
+            \Log::error('Letter update failed: ' . $e->getMessage());
+            return response()->json(['status' => false, 'message' => 'Update failed: ' . $e->getMessage()], 500);
         }
-            
     }
 
 
-    public function delete($id){
+    public function delete($id)
+    {
         $letter = Letter::findOrFail($id);
         // if ($letter->document_image && file_exists(public_path('uploads/letters/' . $letter->document_image))) {
         //     unlink(public_path('uploads/letters/' . $letter->document_image));
@@ -185,7 +195,7 @@ class LetterManagementController extends Controller
             'Letter ID',
             'Received From',
             'Handed Over By',
-            'Send To', 
+            'Send To',
             'Subject',
             'Document Ref No',
             'Document Date',
@@ -209,7 +219,7 @@ class LetterManagementController extends Controller
                     $sendToName = $member ? ucwords($member->name) . ' (Member)' : 'Unknown Member';
                 } elseif (Str::startsWith($sendTo, 'team_')) {
                     $teamId = Str::after($sendTo, 'team_');
-                    $team = Team::find($teamId); 
+                    $team = Team::find($teamId);
                     $sendToName = $team ? ucwords($team->name) : 'Unknown Team';
                 } else {
                     $sendToName = ucwords($sendTo);
@@ -268,5 +278,4 @@ class LetterManagementController extends Controller
 
         return response()->json($results);
     }
-
 }

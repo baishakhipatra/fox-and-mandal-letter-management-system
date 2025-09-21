@@ -330,7 +330,7 @@
 
                                 <div class="col-md-6">
                                     <label class="form-label">Letter ID</label>
-                                    <input type="text" name="letter_id" id="letterId" class="form-control" readonly>
+                                    <input type="text" name="letter_id" id="letterId" class="form-control" value="{{$newLetterId ?? ''}}" readonly>
                                 </div>
 
 
