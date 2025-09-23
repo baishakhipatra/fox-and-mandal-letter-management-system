@@ -131,19 +131,21 @@
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="{{ route('admin.delivery.download', $letter->id) }}" class="btn btn-outline-dark btn-sm" target="_blank">
+                                            <a href="{{ route('admin.delivery.download', $letter->id) }}" class="btn btn-outline-dark btn-sm mb-2" target="_blank">
                                                 <i class="fas fa-shipping-fast"></i>Delivery
                                             </a>
                                             @if(!empty($letter->document_image))
-                                            <a href="{{ asset($letter->document_image) }}" class="btn btn-outline-dark btn-sm" target="_blank">
+                                            <a href="{{ asset($letter->document_image) }}" class="btn btn-outline-dark btn-sm mb-2" target="_blank">
                                                 <i class="fa fa-download"></i>Download
                                             </a>
-                                            @else
-                                                <span class="badge bg-secondary">No Image Available</span>
+                                            {{-- @else
+                                                <span class="badge bg-secondary">No Image Available</span> --}}
                                             @endif
-                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#letterViewModal_{{ $letter->id }}">
-                                                <i class="fas fa-update"></i>Update Matter Code
-                                            </button>
+                                            @if($letter->status === 'Delivered')
+                                                <button class="btn btn-sm btn-outline-primary mb-2" data-bs-toggle="modal" data-bs-target="#letterViewModal_{{ $letter->id }}">
+                                                    <i class="fas fa-update"></i>Update Matter Code
+                                                </button>
+                                            @endif
                                         </td>
                                     </tr>
                                     <div class="modal fade" id="letterViewModal_{{ $letter->id }}" tabindex="-1" aria-labelledby="letterModalLabel_{{ $letter->id }}" aria-hidden="true">

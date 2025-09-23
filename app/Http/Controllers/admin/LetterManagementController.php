@@ -9,6 +9,8 @@ use App\Models\{Letter, User, Team};
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
+use App\Mail\LetterReceivedNotification;
+use Illuminate\Support\Facades\Mail;
 
 class LetterManagementController extends Controller
 {
@@ -107,10 +109,73 @@ class LetterManagementController extends Controller
 
         $letter = Letter::create($data);
 
-        if (!$letter) {
-            return response()->json(['status' => false, 'message' => 'Failed to add letter.']);
+        // if ($letter) {
+        //     $sendTo = $request->input('send_to');
+        //     $recipients = [];
+
+         
+        //     if (str_starts_with($sendTo, 'member_')) {
+        //         $userId = (int) str_replace('member_', '', $sendTo);
+        //         $user = User::find($userId);
+        //         if ($user) {
+        //             $recipients[] = $user->email;
+        //         }
+        //     } elseif (str_starts_with($sendTo, 'team_')) {
+        //         $teamId = (int) str_replace('team_', '', $sendTo);
+        //         $team = Team::with('members')->find($teamId);
+        //         if ($team) {
+        //             $recipients = $team->members->pluck('email')->toArray();
+        //         }
+        //     }
+
+         
+        //     if (!empty($recipients)) {
+        //         try {
+        //             Mail::to($recipients)->send(new LetterReceivedNotification($letter));
+        //         } catch (\Exception $e) {
+        //             dd($e->getMessage());
+        //             \Log::error('Email sending failed: ' . $e->getMessage());
+        //         }
+        //     }
+            
+        //     return response()->json(['status' => true, 'message' => 'Letter Added Successfully']);
+        // }
+        if ($letter) {
+            $sendTo = $request->input('send_to');
+            $recipients = [];
+
+         
+            if (str_starts_with($sendTo, 'member_')) {
+                $userId = (int) str_replace('member_', '', $sendTo);
+                $user = User::find($userId);
+                if ($user) {
+                    $recipients[] = $user;
+                }
+            } elseif (str_starts_with($sendTo, 'team_')) {
+                $teamId = (int) str_replace('team_', '', $sendTo);
+                $team = Team::with('members')->find($teamId);
+                if ($team) {
+                    $recipients = $team->members;
+                }
+            }
+
+            if (!empty($recipients)) {
+                foreach ($recipients as $recipient) {
+                    $data = [
+                        'email' => $recipient->email,
+                        'name' => $recipient->name,
+                        'subject' => 'New Incoming Letter: ' . $letter->subject,
+                        'blade_file' => 'admin.email.notification',
+                        'letter' => $letter,
+                    ];
+
+                    SendMail($data);
+                }
+            }
+            
+            return response()->json(['status' => true, 'message' => 'Letter Added Successfully']);
         }
-        return response()->json(['status' => true, 'message' => 'Letter Added Successfully']);
+        return response()->json(['status' => False, 'message' => 'Failed To Add Letter']);
     }
 
 

@@ -108,7 +108,6 @@
                             <thead>
 
                                 <tr>
-
                                     <th>ID</th>
 
                                     <th>Received Date</th>
@@ -152,8 +151,6 @@
                                         <td>{{ ucwords($letter->received_from) }}</td>
 
                                         <td>{{ ucwords($letter->handedOverByUser->name ?? 'N\A') }}</td>
-
-                                       
 
                                         <td>
 
@@ -215,11 +212,16 @@
 
                                         <td>
                                             <!-- View Button -->
+                                            @php
+                                                $deliveredToUser = optional(\App\Models\User::find(optional($letter->delivery)->delivered_to_user_id))->name;
+                                            @endphp
                                             <button class="btn btn-sm btn-outline-info view-letter-btn"
                                                 data-id="{{ $letter->id }}"
+                                                data-status="{{ $letter->status }}"
                                                 data-received_date="{{ $letter->received_date }}"
                                                 data-received_from="{{ ucwords($letter->received_from) }}"
                                                 data-send_to="{{ ucwords($sendToName) }}"
+                                                data-document_type="{{ $letter->document_type }}"
                                                 data-document_reference_no="{{ $letter->document_reference_no }}"
                                                 data-document_date="{{ $letter->document_date }}"
                                                 data-subject="{{ ucwords($letter->subject) }}"
@@ -227,13 +229,16 @@
                                                 data-created_by="{{ ucwords(optional($letter->createdBy)->name) ?? '-' }}"
                                                 data-created_at="{{ $letter->created_at }}"
                                                 data-document_image="{{ asset($letter->document_image) }}"
+                                                data-matter_code="{{ $letter->matter_code }}"
+                                                data-delivered_to="{{ ucwords($deliveredToUser)  }}"
+                                                data-signature_image="{{ optional($letter->delivery)->signature_image_path }}"
                                                 data-bs-toggle="tooltip"
                                                 title="View">
                                                 <i class="fa fa-eye"></i>
                                             </button>
 
                                             
-                                            @if($letter->status !== 'Delivered')
+                                            @if(auth()->user()->role === 'Receptionist' && $letter->status !== 'Delivered')
                                             <button class="btn btn-sm btn-outline-primary edit-letter-btn"
                                                 data-id="{{ $letter->id }}"
                                                 data-received_date="{{ $letter->received_date }}"
@@ -279,7 +284,7 @@
                     <div class="modal-dialog modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">Letter Details</h5>
+                                <h5 class="modal-title">Letter Details {{ $letter->letter_id }}</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
@@ -299,7 +304,15 @@
                                             <span id="view_document_image_wrapper"></span>
                                         </td>
                                     </tr>
-
+                                    <tr id="row_delivered_to" style="display:none;">
+                                        <th>Delivered To</th><td id="view_delivered_to"></td>
+                                    </tr>
+                                    <tr id="row_signature_image" style="display:none;">
+                                        <th>Signature Image</th><td id="view_signature_image"></td>
+                                    </tr>
+                                    <tr id="row_matter_code" style="display:none;">
+                                        <th>Matter Code</th><td id="view_matter_code"></td>
+                                    </tr>
                                 </table>
                             </div>
                         </div>
@@ -356,9 +369,6 @@
                                             <input type="text" name="received_from" class="form-control" placeholder="Enter senders name and address">
 
                                         </div>
-
-
-
 
 
                                         <div class="col-md-6">
@@ -469,11 +479,7 @@
 
                                                 @foreach($users as $user)
 
-                                                    {{-- @if(!(Auth::user()->role === 'Receptionist' && Auth::id() === $user->id)) --}}
-
-                                                        <option value="{{ $user->id }}">{{ ucwords($user->name) }} ({{ $user->role }})</option>
-
-                                                    {{-- @endif --}}
+                                                    <option value="{{ $user->id }}">{{ ucwords($user->name) }} ({{ $user->role }})</option>
 
                                                 @endforeach
 
@@ -996,8 +1002,10 @@
         $('#view_created_by').text($(this).data('created_by'));
         $('#view_created_at').text($(this).data('created_at'));
 
-        const imageUrl = $(this).data('document_image');
+        $('#row_delivered_to, #row_signature_image, #row_matter_code').hide();
 
+        // document image
+        const imageUrl = $(this).data('document_image');
         if (imageUrl && imageUrl !== '') {
             $('#view_document_image_wrapper').html(
                 `<a href="${imageUrl}" target="_blank" class="btn btn-sm btn-outline-info">View Image/PDF</a>`
@@ -1006,10 +1014,29 @@
             $('#view_document_image_wrapper').html('<span>No Image Available</span>');
         }
 
+        const status = $(this).data('status');
+        if (status === 'Delivered') {
+            $('#view_delivered_to').text($(this).data('delivered_to') || 'N/A');
+            
+            const signatureImage = $(this).data('signature_image');
+            if (signatureImage) {
+                $('#view_signature_image').html(
+                    `<img src="${signatureImage}" alt="Signature" style="max-width:150px; max-height:100px;">`
+                );
+            } else {
+                $('#view_signature_image').html('<span>No Signature Available</span>');
+            }
+
+            $('#view_matter_code').text($(this).data('matter_code') || 'N/A');
+
+            // show the rows
+            $('#row_delivered_to, #row_signature_image, #row_matter_code').show();
+        }
+        
         const modal = new bootstrap.Modal(document.getElementById('viewLetterModal'));
         modal.show();
-    
     });
+
 
 
     $(document).ready(function () {

@@ -28,6 +28,7 @@
     <div class="title">DELIVERY CONFIRMATION REPORT</div>
 
     <div class="line"><span class="label">Letter ID:</span> {{ $letter->letter_id }}</div>
+    <div class="line"><span class="label">Received Date:</span> {{ ucwords($letter->received_date) }}</div>
     <div class="line"><span class="label">Received From:</span> {{ ucwords($letter->received_from) }}</div>
     <div class="line">
         <span class="label">Send To (Member/Team):</span>
@@ -49,6 +50,7 @@
         @endphp
         {{ $sendToName }}
     </div>
+    <div class="line"><span class="label">Document Type:</span> {{ $letter->document_type }}</div>
     <div class="line"><span class="label">Document Reference No:</span> {{ $letter->document_reference_no }}</div>
     <div class="line"><span class="label">Document Date:</span> {{ $letter->document_date ? date('d-m-Y', strtotime($letter->document_date)) : '' }}</div>
     <div class="line"><span class="label">Subject/Document Name:</span> {{ ucwords($letter->subject ?? 'N/A') }}</div>
